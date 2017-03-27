@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<Actions>
+	<SupportURL>http://forums.indigodomo.com/viewforum.php?f=177</SupportURL>
+	<Action id="sendTextCommand" deviceFilter="self.RFPlayer">
+		<Name>Send Text Command</Name>
+		<CallbackMethod>sendCommandAction</CallbackMethod>
+		<ConfigUI>
+			<Field id="textString" type="textfield">
+				<Label>Command:</Label>
+			</Field>
+			<Field id="simpleSeparator1" type="separator"/>
+			<Field id="messageNote" type="label" fontSize="small" fontColor="darkgray">
+				<Label>Variable and Device State Substitution is enabled for all fields. Use the format %%v:12345%% for variables and %%d:12345:someStateId%% for device states.</Label>
+			</Field>
+		</ConfigUI>
+	</Action>
+	<Action id="setFrequency" deviceFilter="self.RFPlayer">
+		<Name>Set Transmission Frequency</Name>
+		<CallbackMethod>setFrequencyAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="freqBand" type="menu" defaultValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="H">High Band (868Mhz)</Option>
+                    <Option value="L">Low Band (433Mhz)</Option>
+                </List>
+            </Field>			
+            <Field id="highBand"  type="menu" defaultValue="868950" visibleBindingId="freqBand" visibleBindingValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="0">Off</Option>
+                    <Option value="868950">868.950Mhz</Option>
+                    <Option value="868350">868.350Mhz</Option>
+                </List>
+            </Field>
+            <Field id="lowBand"  type="menu" defaultValue="433920" visibleBindingId="freqBand" visibleBindingValue="L">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="0">Off</Option>
+                    <Option value="433920">433.920Mhz</Option>
+                    <Option value="433420">433.420Mhz</Option>
+                </List>
+            </Field>
+		</ConfigUI>
+	</Action>
+	<Action id="setSelectivity" deviceFilter="self.RFPlayer">
+		<Name>Set Receiver Selectivity</Name>
+		<CallbackMethod>setSelectivityAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="freqBand" type="menu" defaultValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="H">High Band (868Mhz)</Option>
+                    <Option value="L">Low Band (433Mhz)</Option>
+                </List>
+            </Field>			
+            <Field id="selectivity"  type="menu" defaultValue="4">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="1">Very low selectivity (800Khz, between bands)</Option>
+                    <Option value="2">Very low selectivity (800Khz)</Option>
+                    <Option value="3">Low selectivity (500Khz)</Option>
+                    <Option value="4">Low selectivity (300Khz)</Option>
+                    <Option value="5">Low selectivity (200Khz)</Option>
+                </List>
+            </Field>
+		</ConfigUI>
+	</Action>
+	<Action id="setSensitivity" deviceFilter="self.RFPlayer">
+		<Name>Set Receiver Sensitivity</Name>
+		<CallbackMethod>setSensitivityAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="freqBand" type="menu" defaultValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="H">High Band (868Mhz)</Option>
+                    <Option value="L">Low Band (433Mhz)</Option>
+                </List>
+            </Field>			
+            <Field id="sensitivity"  type="menu" defaultValue="4">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="1">Very low sensitivity (-18dB)</Option>
+                    <Option value="2">Low sensitivity (-12dB)</Option>
+                    <Option value="3">Medium sensitivity (-6dB)</Option>
+                    <Option value="4">High sensitivity (-0dB)</Option>
+                </List>
+            </Field>
+		</ConfigUI>
+	</Action>
+	<Action id="setDSPTrigger" deviceFilter="self.RFPlayer">
+		<Name>Set DSP Trigger</Name>
+		<CallbackMethod>setDSPTriggerAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="freqBand" type="menu" defaultValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="H">High Band (868Mhz)</Option>
+                    <Option value="L">Low Band (433Mhz)</Option>
+                </List>
+            </Field>			
+            <Field id="triggerValue"  type="menu" defaultValue="7">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="4">4dBm</Option>
+                    <Option value="5">5dBm</Option>
+                    <Option value="6">6dBm</Option>
+                    <Option value="7">7dBm</Option>
+                    <Option value="8">8dBm</Option>
+                    <Option value="9">9dBm</Option>
+                    <Option value="10">10dBm</Option>
+                    <Option value="11">11dBm</Option>
+                    <Option value="12">12dBm</Option>
+                    <Option value="13">13dBm</Option>
+                    <Option value="14">14dBm</Option>
+                    <Option value="15">15dBm</Option>
+                    <Option value="16">16dBm</Option>
+                    <Option value="17">17dBm</Option>
+                    <Option value="18">18dBm</Option>
+                    <Option value="19">19dBm</Option>
+                    <Option value="20">20dBm</Option>
+                </List>
+            </Field>
+		</ConfigUI>
+	</Action>
+	<Action id="setRFTrigger" deviceFilter="self.RFPlayer">
+		<Name>Set RF Trigger</Name>
+		<CallbackMethod>setRFTriggerAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="freqBand" type="menu" defaultValue="H">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="H">High Band (868Mhz)</Option>
+                    <Option value="L">Low Band (433Mhz)</Option>
+                </List>
+            </Field>			
+            <Field id="triggerValue"  type="menu" defaultValue="11">
+                <Label>Select Band:</Label>
+                <List>
+                    <Option value="4">4dBm</Option>
+                    <Option value="5">5dBm</Option>
+                    <Option value="6">6dBm</Option>
+                    <Option value="7">7dBm</Option>
+                    <Option value="8">8dBm</Option>
+                    <Option value="9">9dBm</Option>
+                    <Option value="10">10dBm</Option>
+                    <Option value="11">11dBm</Option>
+                    <Option value="12">12dBm</Option>
+                    <Option value="13">13dBm</Option>
+                    <Option value="14">14dBm</Option>
+                    <Option value="15">15dBm</Option>
+                    <Option value="16">16dBm</Option>
+                    <Option value="17">17dBm</Option>
+                    <Option value="18">18dBm</Option>
+                    <Option value="19">19dBm</Option>
+                    <Option value="20">20dBm</Option>
+                </List>
+            </Field>
+		</ConfigUI>
+	</Action>
+</Actions>

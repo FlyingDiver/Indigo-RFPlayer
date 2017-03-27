@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Events>
+	<SupportURL>http://forums.indigodomo.com/viewforum.php?f=213</SupportURL>
+    <Event id="frameReceived">
+        <Name>Frame Received</Name>
+		<ConfigUI>
+        	<Field id="rfPlayer" type="menu">
+            	<Label>rfPlayer:</Label>
+            	<List class="self.RFPlayer" filter=""/>
+			</Field>
+		</ConfigUI>
+    </Event>
+</Events>
+
+

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Devices>
+    <Device type="custom" id="RFPlayer">
+		<Name>RFPlayer Interface Unit</Name>
+		<ConfigUI>	
+	        <Field id="serialPort" type="menu">
+		        <Label>Serial Port:</Label>
+		        <List class="indigo.serialPorts" filter="indigo.ignoreBluetooth" />
+	        </Field>
+	        <Field id="baudRate" type="Menu" defaultValue="115200" hidden="true">
+		        <Label>Baudrate: </Label>
+		        <List>
+			        <Option value="9600">9.6K</Option>
+			        <Option value="19200">19.2K</Option>
+			        <Option value="38400">38.4K</Option>
+			        <Option value="57600">57.6K</Option>
+			        <Option value="115200">115.2K</Option>
+		        </List>
+	        </Field>	
+		</ConfigUI>	
+        <States>
+            <State id="lastRequest">
+                <ValueType>Integer</ValueType>
+                <TriggerLabel>Last Request Number</TriggerLabel>
+                <ControlPageLabel>Last Request Number</ControlPageLabel>
+            </State>
+            <State id="fwVersion">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Firmware Version</TriggerLabel>
+                <ControlPageLabel>Firmware Version</ControlPageLabel>
+            </State>
+            <State id="macAddress">
+                <ValueType>String</ValueType>
+                <TriggerLabel>MAC Address</TriggerLabel>
+                <ControlPageLabel>MAC Address</ControlPageLabel>
+            </State>
+        </States>
+    </Device>		
+</Devices>
