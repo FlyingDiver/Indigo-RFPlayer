@@ -6,24 +6,22 @@
 import json
 import logging
 import serial
-import threading
 
 from Queue import Queue
 
 ################################################################################
 class RFPlayer(object):
 
-    def __init__(self, plugin):
+    def __init__(self, plugin, device):
         self.logger = logging.getLogger("Plugin.RFPlayer")
-        self.logger.debug(u"RFPlayer __init__ called")
         self.plugin = plugin
+        self.device = device
         self.port = None
         self.sequence = 0
         self.queue = Queue()
         self.connected = False
 
     def __del__(self):
-        self.logger.debug(u"RFPlayer __del__ called")
         pass
 
     def start(self, serialPort, baudRate):
@@ -50,6 +48,8 @@ class RFPlayer(object):
                  
         self.sendRawCommand("HELLO")
         self.sendRawCommand("FORMAT JSON")
+        self.sendRawCommand("STATUS SYSTEM JSON")
+        self.sendRawCommand("STATUS RADIO JSON")
         
         return True
             
@@ -83,7 +83,7 @@ class RFPlayer(object):
         
         if not self.queue.empty():
             command = self.queue.get(False)
-            self.logger.debug(u"sending: " + command)
+            self.logger.threaddebug(u"sending: " + command)
             try:
                 self.port.write(command)
             except Exception, e:
@@ -103,6 +103,7 @@ class RFPlayer(object):
         
         try:                                # everything else should be JSON
             reply = json.loads(data[5:])
+            self.logger.threaddebug("%s: Frame Received:\n%s" % (self.device.name, json.dumps(reply, indent=4, sort_keys=True)))
             return reply
         except:
             self.logger.debug(u"json decode failure:\n" + str(data))        
@@ -111,7 +112,7 @@ class RFPlayer(object):
         
     def sendCommand(self, commandString):
     
-        self.logger.debug(u"sendCommand: " + commandString)
+        self.logger.threaddebug(u"sendCommand: " + commandString)
         self.sequence += 1 
         command = "ZIA++%04d %s JSON\r" % (self.sequence, commandString)
         self.queue.put(command)
@@ -119,7 +120,7 @@ class RFPlayer(object):
     
     def sendRawCommand(self, commandString):
     
-        self.logger.debug(u"sendRawCommand: " + commandString)
+        self.logger.threaddebug(u"sendRawCommand: " + commandString)
         command = "ZIA++%s\r" % (commandString)
         self.queue.put(command)
         

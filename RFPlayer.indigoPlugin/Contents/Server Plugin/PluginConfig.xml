@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <PluginConfig>
 	<SupportURL>http://forums.indigodomo.com/viewforum.php?f=213</SupportURL>
+    <Field type="menu" id="useFarenheit" defaultValue="true">
+		<Label>Temperature Units:</Label>
+		<List>
+			<Option value="true">Farenheit</Option>
+			<Option value="false">Celsius</Option>
+		</List>    
+	</Field>
 	<Field id="updateFrequency" type="textfield" defaultValue="24">
 		<Label>Check for plugin update frequency (hours):</Label>
 	</Field>
@@ -11,6 +18,7 @@
 	<Field id="logLevel" type="menu" defaultValue="20">
 		<Label>Event Logging Level:</Label>
 		<List>
+			<Option value="5">Verbose Debugging Messages</Option>
 			<Option value="10">Debugging Messages</Option>
 			<Option value="20">Informational Messages</Option>
 			<Option value="30">Warning Messages</Option>

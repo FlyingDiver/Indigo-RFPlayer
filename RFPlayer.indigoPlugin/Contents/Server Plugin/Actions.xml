@@ -14,23 +14,84 @@
 			</Field>
 		</ConfigUI>
 	</Action>
+	<Action id="sendX10Command" deviceFilter="self.RFPlayer">
+		<Name>Send X10 Command</Name>
+		<CallbackMethod>sendX10CommandAction</CallbackMethod>
+		<ConfigUI>
+            <Field id="command" type="menu" defaultValue="ON">
+                <Label>Select Command:</Label>
+                <List>
+                    <Option value="ON">On</Option>
+                    <Option value="OFF">Off</Option>
+                    <Option value="DIM">Set Brightness</Option>
+                    <Option value="ALL_ON">All On</Option>
+                    <Option value="ALL_OFF">All Off</Option>
+                </List>
+            </Field>			
+            <Field id="houseCode" type="menu" defaultValue="A">
+                <Label>Select House Code:</Label>
+                <List>
+                    <Option value="A">A</Option>
+                    <Option value="B">B</Option>
+                    <Option value="C">C</Option>
+                    <Option value="D">D</Option>
+                    <Option value="E">E</Option>
+                    <Option value="F">F</Option>
+                    <Option value="G">G</Option>
+                    <Option value="H">H</Option>
+                    <Option value="I">I</Option>
+                    <Option value="J">J</Option>
+                    <Option value="K">K</Option>
+                    <Option value="L">L</Option>
+                    <Option value="M">M</Option>
+                    <Option value="N">N</Option>
+                    <Option value="O">O</Option>
+                    <Option value="P">P</Option>
+                </List>
+            </Field>			
+            <Field id="unitCode" type="menu" defaultValue="1">
+                <Label>Select Unit Code:</Label>
+                <List>
+                    <Option value="1">1</Option>
+                    <Option value="2">2</Option>
+                    <Option value="3">3</Option>
+                    <Option value="4">4</Option>
+                    <Option value="5">5</Option>
+                    <Option value="6">6</Option>
+                    <Option value="7">7</Option>
+                    <Option value="8">8</Option>
+                    <Option value="9">9</Option>
+                    <Option value="10">10</Option>
+                    <Option value="11">11</Option>
+                    <Option value="12">12</Option>
+                    <Option value="13">13</Option>
+                    <Option value="14">14</Option>
+                    <Option value="15">15</Option>
+                    <Option value="16">16</Option>
+                </List>
+            </Field>			
+			<Field id="brightness" type="textfield" visibleBindingId="command" visibleBindingValue="DIM">
+				<Label>Brightness (%):</Label>
+			</Field>
+		</ConfigUI>
+	</Action>
 	<Action id="setFrequency" deviceFilter="self.RFPlayer">
-		<Name>Set Transmission Frequency</Name>
+		<Name>Set Receiver Frequency</Name>
 		<CallbackMethod>setFrequencyAction</CallbackMethod>
 		<ConfigUI>
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
                 <List>
-                    <Option value="H">High Band (868Mhz)</Option>
-                    <Option value="L">Low Band (433Mhz)</Option>
+                    <Option value="H">310/315MHz Band</Option>
+                    <Option value="L">433Mhz Band</Option>
                 </List>
             </Field>			
-            <Field id="highBand"  type="menu" defaultValue="868950" visibleBindingId="freqBand" visibleBindingValue="H">
+            <Field id="highBand"  type="menu" defaultValue="310000" visibleBindingId="freqBand" visibleBindingValue="H">
                 <Label>Select Band:</Label>
                 <List>
                     <Option value="0">Off</Option>
-                    <Option value="868950">868.950Mhz</Option>
-                    <Option value="868350">868.350Mhz</Option>
+                    <Option value="310000">310Mhz</Option>
+                    <Option value="315000">315Mhz</Option>
                 </List>
             </Field>
             <Field id="lowBand"  type="menu" defaultValue="433920" visibleBindingId="freqBand" visibleBindingValue="L">
@@ -50,8 +111,8 @@
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
                 <List>
-                    <Option value="H">High Band (868Mhz)</Option>
-                    <Option value="L">Low Band (433Mhz)</Option>
+                    <Option value="H">310/315MHz Band</Option>
+                    <Option value="L">433Mhz Band</Option>
                 </List>
             </Field>			
             <Field id="selectivity"  type="menu" defaultValue="4">
@@ -73,8 +134,8 @@
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
                 <List>
-                    <Option value="H">High Band (868Mhz)</Option>
-                    <Option value="L">Low Band (433Mhz)</Option>
+                    <Option value="H">310/315MHz Band</Option>
+                    <Option value="L">433Mhz Band</Option>
                 </List>
             </Field>			
             <Field id="sensitivity"  type="menu" defaultValue="4">
@@ -95,8 +156,8 @@
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
                 <List>
-                    <Option value="H">High Band (868Mhz)</Option>
-                    <Option value="L">Low Band (433Mhz)</Option>
+                    <Option value="H">310/315MHz Band</Option>
+                    <Option value="L">433Mhz Band</Option>
                 </List>
             </Field>			
             <Field id="triggerValue"  type="menu" defaultValue="7">
@@ -130,8 +191,8 @@
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
                 <List>
-                    <Option value="H">High Band (868Mhz)</Option>
-                    <Option value="L">Low Band (433Mhz)</Option>
+                    <Option value="H">310/315MHz Band</Option>
+                    <Option value="L">433Mhz Band</Option>
                 </List>
             </Field>			
             <Field id="triggerValue"  type="menu" defaultValue="11">

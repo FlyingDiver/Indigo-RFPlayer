@@ -7,25 +7,21 @@
 -->
 <MenuItems>
     <MenuItem id="sendHELLO">
-        <Name>Send Hello</Name>
-        <CallbackMethod>sendHelloMenu</CallbackMethod>
-        <ButtonTitle>Send Hello</ButtonTitle>
+        <Name>Send Text Command</Name>
+        <CallbackMethod>sendCommandMenu</CallbackMethod>
+        <ButtonTitle>Send Command</ButtonTitle>
         <ConfigUI>
             <Field id="targetDevice" type="menu">
                 <Label>Select RFPlayer Device:</Label>
                 <List class="self" filter="" method="pickPlayer" dynamicReload="true"/>
             </Field>
-        </ConfigUI>
-    </MenuItem>
-    <MenuItem id="sendSTATUS">
-        <Name>Send Status Request</Name>
-        <CallbackMethod>sendStatusMenu</CallbackMethod>
-        <ButtonTitle>Send Status Request</ButtonTitle>
-        <ConfigUI>
-            <Field id="targetDevice" type="menu">
-                <Label>Select RFPlayer Device:</Label>
-                <List class="self" filter="" method="pickPlayer" dynamicReload="true"/>
-            </Field>
+			<Field id="textString" type="textfield">
+				<Label>Command:</Label>
+			</Field>
+			<Field id="simpleSeparator1" type="separator"/>
+			<Field id="messageNote" type="label" fontSize="small" fontColor="darkgray">
+				<Label>Variable and Device State Substitution is enabled for all fields. Use the format %%v:12345%% for variables and %%d:12345:someStateId%% for device states.</Label>
+			</Field>
         </ConfigUI>
     </MenuItem>
 	<Field id="simpleSeparator1" type="separator"/>
