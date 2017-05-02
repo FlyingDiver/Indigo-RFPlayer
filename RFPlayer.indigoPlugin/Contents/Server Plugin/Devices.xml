@@ -3,6 +3,13 @@
     <Device type="custom" id="RFPlayer">
 		<Name>RFPlayer Interface Unit</Name>
 		<ConfigUI>	
+            <Field id="playerModel" type="menu" defaultValue="US">
+                <Label>RFPlayer Model:</Label>
+                <List>
+                    <Option value="US">US</Option>
+                    <Option value="EU">EU</Option>
+                </List>
+            </Field>			
 	        <Field id="serialPort" type="menu">
 		        <Label>Serial Port:</Label>
 		        <List class="indigo.serialPorts" filter="indigo.ignoreBluetooth" />
@@ -71,6 +78,14 @@
                     <Option value="14">14</Option>
                     <Option value="15">15</Option>
                     <Option value="16">16</Option>
+                </List>
+            </Field>			
+            <Field id="deviceType" type="menu" defaultValue="SENSOR">
+                <Label>X10 Device Type:</Label>
+                <List>
+                    <Option value="SENSOR">Sensor</Option>
+                    <Option value="RELAY">Relay</Option>
+                    <Option value="DIMMER">Dimmer</Option>
                 </List>
             </Field>			
         </ConfigUI>

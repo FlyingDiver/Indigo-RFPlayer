@@ -31,7 +31,7 @@ class Plugin(indigo.PluginBase):
         except:
             self.logLevel = logging.INFO
         self.indigo_log_handler.setLevel(self.logLevel)
-        self.logger.debug(u"logLevel = " + str(self.logLevel))
+        self.logger.debug(u"RFPlayer logLevel = " + str(self.logLevel))
 
     def startup(self):
         self.logger.info(u"Starting RFPlayer")
@@ -58,7 +58,7 @@ class Plugin(indigo.PluginBase):
         
         self.updater = GitHubPluginUpdater(self)
         self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', "24")) * 60.0 * 60.0
-        self.logger.debug(u"updateFrequency = " + str(self.updateFrequency))
+        self.logger.debug(u"RFPlayer updateFrequency = " + str(self.updateFrequency))
         self.next_update_check = time.time()
 
     def shutdown(self):
@@ -74,7 +74,25 @@ class Plugin(indigo.PluginBase):
                 for playerID, player in self.players.items():
                     playerFrame = player.poll()
                     if playerFrame:
-                        self.frameHandler(player, playerFrame)
+                        if 'systemStatus' in playerFrame:
+                            self.logger.debug(u"%s: systemStatus received" % (player.device.name))
+                    
+                        elif 'radioStatus' in playerFrame:
+                            self.logger.debug(u"%s: radioStatus received" % (player.device.name))
+               
+                        elif 'parrotStatus' in playerFrame:
+                            self.logger.debug(u"%s: parrotStatus received" % (player.device.name))
+               
+                        elif 'transcoderStatus' in playerFrame:
+                            self.logger.debug(u"%s: transcoderStatus received" % (player.device.name))
+               
+                        elif 'frame' in playerFrame:                        # async frame received - dispatch to the handler for the frame's protocol
+            
+                            protocol = playerFrame['frame']['header']['protocol']
+                            self.protocolHandlers[protocol](player, playerFrame['frame'])
+            
+                        else:
+                            self.logger.debug(u"%s: Unknown playerFrame:\n" %  (player.device.name, str(playerFrame)))      
     
                 if (self.updateFrequency > 0.0) and (time.time() > self.next_update_check):
                     self.next_update_check = time.time() + self.updateFrequency
@@ -84,29 +102,7 @@ class Plugin(indigo.PluginBase):
 
         except self.stopThread:
             for playerID, player in self.players.items():
-                player.stop()
-
-    def frameHandler(self, player, playerFrame):
-            
-        if 'systemStatus' in playerFrame:
-            self.logger.debug(u"%s: systemStatus received" % (player.device.name))
-                    
-        elif 'radioStatus' in playerFrame:
-            self.logger.debug(u"%s: radioStatus received" % (player.device.name))
-               
-        elif 'parrotStatus' in playerFrame:
-            self.logger.debug(u"%s: parrotStatus received" % (player.device.name))
-               
-        elif 'transcoderStatus' in playerFrame:
-            self.logger.debug(u"%s: transcoderStatus received" % (player.device.name))
-               
-        elif 'frame' in playerFrame:                        # async frame received - dispatch to the handler for the frame's protocol
-            
-            protocol = playerFrame['frame']['header']['protocol']
-            self.protocolHandlers[protocol](player, playerFrame['frame'])
-            
-        else:
-            self.logger.debug(u"%s: Unknown playerFrame:\n" %  (player.device.name, str(playerFrame)))      
+                player.stop()            
             
 
     ########################################
@@ -114,7 +110,6 @@ class Plugin(indigo.PluginBase):
     ########################################
 
     def validatePrefsConfigUi(self, valuesDict):
-        self.logger.debug(u"validatePrefsConfigUi called")
         errorDict = indigo.Dict()
 
         try:
@@ -122,7 +117,6 @@ class Plugin(indigo.PluginBase):
         except:
             self.logLevel = logging.INFO
         self.indigo_log_handler.setLevel(self.logLevel)
-        self.logger.debug(u"logLevel = " + str(self.logLevel))
 
         updateFrequency = int(valuesDict['updateFrequency'])
         if (updateFrequency < 0) or (updateFrequency > 24):
@@ -139,11 +133,9 @@ class Plugin(indigo.PluginBase):
             except:
                 self.logLevel = logging.INFO
             self.indigo_log_handler.setLevel(self.logLevel)
-            self.logger.debug(u"logLevel = " + str(self.logLevel))
 
             self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', "24")) * 60.0 * 60.0
-            self.logger.debug(u"updateFrequency = " + str(self.updateFrequency))
-            self.next_update_check = time.time()
+            self.next_update_check = time.time() + self.updateFrequency
 
 
     ########################################
@@ -152,28 +144,28 @@ class Plugin(indigo.PluginBase):
 
     def didDeviceCommPropertyChange(self, origDev, newDev):
     
-        if newDev.deviceTypeId != "RFPlayer":
-            return False           
-        if origDev.pluginProps.get('serialPort', None) != newDev.pluginProps.get('serialPort', None):
-            return True
+        if newDev.deviceTypeId == "RFPlayer":
+            if origDev.pluginProps.get('serialPort', None) != newDev.pluginProps.get('serialPort', None):
+                return True           
+
         return False
       
     def deviceStartComm(self, device):
 
-#         instanceVers = int(device.pluginProps.get('devVersCount', 0))
-#         if instanceVers == kCurDevVersCount:
-#             self.logger.threaddebug(u"%s: Device is current version: %d" % (device.name ,instanceVers))
-#         elif instanceVers < kCurDevVersCount:
-#             newProps = device.pluginProps
-# 
-#             # do version specific updates here
-#             
-#             newProps["devVersCount"] = kCurDevVersCount
-#             device.replacePluginPropsOnServer(newProps)
-#             device.stateListOrDisplayStateIdChanged()
-#             self.logger.debug(u"%s: Updated device version: %d -> %d" % (device.name,  instanceVers, kCurDevVersCount))
-#         else:
-#             self.logger.warning(u"%s: Invalid device version: %d" % (device.name, instanceVers))
+        instanceVers = int(device.pluginProps.get('devVersCount', 0))
+        if instanceVers == kCurDevVersCount:
+            self.logger.threaddebug(u"%s: Device is current version: %d" % (device.name ,instanceVers))
+        elif instanceVers < kCurDevVersCount:
+            newProps = device.pluginProps
+
+            # do version specific updates here
+            
+            newProps["devVersCount"] = kCurDevVersCount
+            device.replacePluginPropsOnServer(newProps)
+            device.stateListOrDisplayStateIdChanged()
+            self.logger.debug(u"%s: Updated device version: %d -> %d" % (device.name,  instanceVers, kCurDevVersCount))
+        else:
+            self.logger.warning(u"%s: Invalid device version: %d" % (device.name, instanceVers))
 
         # Now do the device-specific startup work
         
@@ -518,11 +510,50 @@ class Plugin(indigo.PluginBase):
 
     def pickPlayer(self, filter=None, valuesDict=None, typeId=0):
         retList = []
-        for dev in indigo.devices.iter("self"):
-            if dev.deviceTypeId == "RFPlayer":
-                retList.append((dev.id, dev.name))
+        for device in indigo.devices.iter("self"):
+            if device.deviceTypeId == "RFPlayer":
+                retList.append((device.id, device.name))
         retList.sort(key=lambda tup: tup[1])
         return retList
+
+    def getRFBands(self, filter=None, valuesDict=None, typeId=0, targetId=0):
+        rfPlayer = indigo.devices[targetId]
+        playerType = rfPlayer.pluginProps[u'playerModel']
+        self.logger.debug(u"getRFBands for %s (%s)" % (rfPlayer.name, playerType))
+        
+        if playerType == "US":
+            return [("H", "310/315MHz Band"), ("L", "433Mhz Band")]
+        elif playerType == "EU":
+            return [("H", "868MHz Band"), ("L", "433Mhz Band")]
+        
+        self.logger.error(u"Unknown playerType = %s in getRFBands" % (playerType))     
+        return None
+
+    def getHighBands(self, filter=None, valuesDict=None, typeId=0, targetId=0):
+        rfPlayer = indigo.devices[targetId]
+        playerType = rfPlayer.pluginProps[u'playerModel']
+        self.logger.debug(u"getHighBands for %s (%s)" % (rfPlayer.name, playerType))
+        
+        if playerType == "US":
+            return [("0", "Off"), ("310000", "310MHz"), ("315000", "315MHz")]
+        elif playerType == "EU":
+            return [("0", "Off"), ("868350", "868.350MHz"), ("868950", "868.950MHz")]
+        
+        self.logger.error(u"Unknown playerType = %s in getHighBands" % (playerType))     
+        return None
+
+    def getLowBands(self, filter=None, valuesDict=None, typeId=0, targetId=0):
+        rfPlayer = indigo.devices[targetId]
+        playerType = rfPlayer.pluginProps[u'playerModel']
+        self.logger.debug(u"getLowBands for %s (%s)" % (rfPlayer.name, playerType))
+
+        if playerType == "US":
+            return [("0", "Off"), ("433420", "433.420Mhz"), ("433920", "433.920Mhz")]
+        elif playerType == "EU":
+            return [("0", "Off"), ("433420", "433.420Mhz"), ("433920", "433.920Mhz")]
+        
+        self.logger.error(u"Unknown playerType = %s in getLowBands" % (playerType))     
+        return None
 
 
     ########################################

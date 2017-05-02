@@ -81,26 +81,15 @@
 		<ConfigUI>
             <Field id="freqBand" type="menu" defaultValue="H">
                 <Label>Select Band:</Label>
-                <List>
-                    <Option value="H">310/315MHz Band</Option>
-                    <Option value="L">433Mhz Band</Option>
-                </List>
+                <List class="self" filter="" method="getRFBands" dynamicReload="true"/>
             </Field>			
             <Field id="highBand"  type="menu" defaultValue="310000" visibleBindingId="freqBand" visibleBindingValue="H">
-                <Label>Select Band:</Label>
-                <List>
-                    <Option value="0">Off</Option>
-                    <Option value="310000">310Mhz</Option>
-                    <Option value="315000">315Mhz</Option>
-                </List>
+                <Label>Select Frequency:</Label>
+                <List class="self" filter="" method="getHighBands" dynamicReload="true"/>
             </Field>
             <Field id="lowBand"  type="menu" defaultValue="433920" visibleBindingId="freqBand" visibleBindingValue="L">
-                <Label>Select Band:</Label>
-                <List>
-                    <Option value="0">Off</Option>
-                    <Option value="433920">433.920Mhz</Option>
-                    <Option value="433420">433.420Mhz</Option>
-                </List>
+                <Label>Select Frequency:</Label>
+                <List class="self" filter="" method="getLowBands" dynamicReload="true"/>
             </Field>
 		</ConfigUI>
 	</Action>
@@ -116,7 +105,7 @@
                 </List>
             </Field>			
             <Field id="selectivity"  type="menu" defaultValue="4">
-                <Label>Select Band:</Label>
+                <Label>Selectivity:</Label>
                 <List>
                     <Option value="1">Very low selectivity (800Khz, between bands)</Option>
                     <Option value="2">Very low selectivity (800Khz)</Option>
@@ -139,7 +128,7 @@
                 </List>
             </Field>			
             <Field id="sensitivity"  type="menu" defaultValue="4">
-                <Label>Select Band:</Label>
+                <Label>Sensitivity:</Label>
                 <List>
                     <Option value="1">Very low sensitivity (-18dB)</Option>
                     <Option value="2">Low sensitivity (-12dB)</Option>
@@ -161,7 +150,7 @@
                 </List>
             </Field>			
             <Field id="triggerValue"  type="menu" defaultValue="7">
-                <Label>Select Band:</Label>
+                <Label>Trigger:</Label>
                 <List>
                     <Option value="4">4dBm</Option>
                     <Option value="5">5dBm</Option>
@@ -196,7 +185,7 @@
                 </List>
             </Field>			
             <Field id="triggerValue"  type="menu" defaultValue="11">
-                <Label>Select Band:</Label>
+                <Label>Trigger:</Label>
                 <List>
                     <Option value="4">4dBm</Option>
                     <Option value="5">5dBm</Option>
