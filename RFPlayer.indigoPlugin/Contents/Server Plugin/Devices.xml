@@ -122,4 +122,20 @@
             </Field>            
         </ConfigUI>
     </Device>		
+   <Device type="sensor" id="domiaDevice">
+        <Name>Domia Sensor</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+
+			<Field id="SupportsOnState" type="checkbox" defaultValue="true" hidden="true" />
+			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
+
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" filter="DOMIA" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+    </Device>		
 </Devices>
