@@ -260,12 +260,15 @@ class Plugin(indigo.PluginBase):
 
         self.logger.threaddebug(u"deviceDeleted (1) knownDevices = %s" % (str(self.knownDevices)))
             
-        devices = self.knownDevices[device.address]['devices']
-        devices.remove(device.id)
-        self.knownDevices.setitem_in_item(device.address, 'devices', devices)
-        if len(devices) == 0:
-            self.knownDevices.setitem_in_item(device.address, 'status', "Available")
-
+        try:
+            devices = self.knownDevices[device.address]['devices']
+            devices.remove(device.id)
+            self.knownDevices.setitem_in_item(device.address, 'devices', devices)
+            if len(devices) == 0:
+                self.knownDevices.setitem_in_item(device.address, 'status', "Available")
+        except:
+            pass
+            
         self.logger.threaddebug(u"deviceDeleted (2) knownDevices = %s" % (str(self.knownDevices)))
 
     ########################################
@@ -564,7 +567,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X10-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -596,7 +599,7 @@ class Plugin(indigo.PluginBase):
                 
             sensor = self.sensorDevices[deviceId]       
             sensorState = frameData['infos']['subType']
-            self.logger.debug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))       
 
     ########################################
@@ -605,7 +608,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -637,7 +640,7 @@ class Plugin(indigo.PluginBase):
                 
             sensor = self.sensorDevices[deviceId]       
             sensorState = frameData['infos']['qualifier']
-            self.logger.debug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
 
@@ -677,7 +680,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "BLYSS-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -685,7 +688,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "CHACON-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -693,7 +696,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OREGON-" + frameData['infos']['adr_channel']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
         
         # make sure this device is in the list of known sensor devices
         
@@ -729,7 +732,7 @@ class Plugin(indigo.PluginBase):
                 self.logger.error(u"Device configuration error - 'valueType' not configured: %s" % (devAddress))
                 return
         
-            self.logger.debug(u"%s: Updating sensor %s with valueType = %s" % (sensor.name, devAddress, valueType))
+            self.logger.threaddebug(u"%s: Updating sensor %s with valueType = %s" % (sensor.name, devAddress, valueType))
             measures = frameData['infos']['measures']
             for x in measures:
                 if x['type'] != valueType:
@@ -934,7 +937,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -966,7 +969,7 @@ class Plugin(indigo.PluginBase):
                 
             sensor = self.sensorDevices[deviceId]       
             sensorState = frameData['infos']['qualifier']
-            self.logger.debug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
 
@@ -1005,7 +1008,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OWL-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1013,7 +1016,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X2D-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1021,7 +1024,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "RTS-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
     
     ########################################
 
@@ -1029,7 +1032,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "KD101-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1037,6 +1040,6 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
         
         
