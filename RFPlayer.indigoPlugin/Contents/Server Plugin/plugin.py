@@ -89,10 +89,13 @@ class Plugin(indigo.PluginBase):
                         elif 'frame' in playerFrame:                        # async frame received - dispatch to the handler for the frame's protocol
             
                             protocol = playerFrame['frame']['header']['protocol']
-                            self.protocolHandlers[protocol](player, playerFrame['frame'])
+                            if protocol in protocolHandlers:
+                                self.protocolHandlers[protocol](player, playerFrame['frame'])
+                            else:
+                                self.logger.error(u"%s: Unknown protocol:\n" %  (player.device.name, str(playerFrame)))      
             
                         else:
-                            self.logger.debug(u"%s: Unknown playerFrame:\n" %  (player.device.name, str(playerFrame)))      
+                            self.logger.error(u"%s: Unknown playerFrame:\n" %  (player.device.name, str(playerFrame)))      
     
                 if (self.updateFrequency > 0.0) and (time.time() > self.next_update_check):
                     self.next_update_check = time.time() + self.updateFrequency
@@ -197,6 +200,26 @@ class Plugin(indigo.PluginBase):
                 }
                 self.logger.debug(u"added new known device: %s = %s" % (device.address, unicode(self.knownDevices[device.address])))
 
+        elif device.deviceTypeId == "parrotDevice":
+            self.logger.debug(u"%s: Starting Parrot device '%s'" % (device.name,device.address))
+            houseCode = device.pluginProps['houseCode']
+            unitCode = device.pluginProps['unitCode']
+            device.name = device.address
+            device.replaceOnServer()
+            self.sensorDevices[device.id] = device
+            if device.address not in self.knownDevices:
+                self.logger.info("New Parrot Device %s" % (device.address))
+                self.knownDevices[device.address] = { 
+                    "status": "Active", 
+                    "devices" : [device.id],
+                    "protocol": "1", 
+                    "protocolMeaning": "Parrot", 
+                    "infoType": "0", 
+                    "subType": 'None',
+                    "description": device.address,
+                }
+                self.logger.debug(u"added new known device: %s = %s" % (device.address, unicode(self.knownDevices[device.address])))
+
               
         elif device.deviceTypeId == "visonicDevice":
             self.logger.debug(u"%s: Starting Visonic device" % device.name)
@@ -206,6 +229,11 @@ class Plugin(indigo.PluginBase):
         elif device.deviceTypeId == "oregonDevice":
             self.logger.debug(u"%s: Starting Oregon Scientific sensor device" % device.name)
             self.configOregon(device)
+            self.sensorDevices[device.id] = device
+               
+        elif device.deviceTypeId == "rtsDevice":
+            self.logger.debug(u"%s: Starting RTS device" % device.name)
+            self.configRTS(device)
             self.sensorDevices[device.id] = device
                
         else:
@@ -567,7 +595,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X10-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: X10 frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -608,7 +636,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -641,7 +669,6 @@ class Plugin(indigo.PluginBase):
             sensor = self.sensorDevices[deviceId]       
             sensorState = frameData['infos']['qualifier']
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
-            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
 
     def configVisonic(self, device):
@@ -680,7 +707,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "BLYSS-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Sensor Blyss received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -688,7 +715,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "CHACON-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Chacon frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -696,7 +723,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OREGON-" + frameData['infos']['adr_channel']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
         
         # make sure this device is in the list of known sensor devices
         
@@ -937,7 +964,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Domia frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -1008,7 +1035,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OWL-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Owl frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1016,7 +1043,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X2D-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: X2D frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1024,15 +1051,76 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "RTS-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))
     
+        # make sure this device is in the list of known sensor devices
+        
+        if devAddress not in self.knownDevices:
+            self.logger.info("New RTS Device %s" % (devAddress))
+            self.knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "protocolMeaning": frameData['header']['protocolMeaning'], 
+                "infoType": frameData['header']['infoType'], 
+                "subType": frameData['infos']['subType'],
+                "description": frameData['infos']['subTypeMeaning'],
+            }
+            self.logger.debug(u"added new known device: %s = %s" % (devAddress, unicode(self.knownDevices[devAddress])))
+            
+        # Is this a configured device?
+        self.logger.threaddebug(u"%s: Update pending, checking knownDevices = %s" % (player.device.name, str(self.knownDevices[devAddress])))
+        
+        if not (self.knownDevices[devAddress]['status'] == 'Active'):             # not in use
+            self.logger.threaddebug(u"%s: Device %s not active, skipping update" % (player.device.name, devAddress))
+            return
+            
+        deviceList = self.knownDevices[devAddress]['devices']
+        for deviceId in deviceList:
+            if deviceId not in self.sensorDevices:
+                self.logger.error(u"Device configuration error - 'Active' device not in sensor list: %s" % (devAddress))
+                continue
+                
+            sensor = self.sensorDevices[deviceId]       
+            sensorState = frameData['infos']['qualifier']
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
+
+    def configRTS(self, device):
+
+        configDone = device.pluginProps.get('configDone', False)
+        self.logger.debug(u" %s: configRTS, configDone = %s" % (device.name, str(configDone)))
+        
+        if configDone:
+            return
+
+        address = device.pluginProps['address']
+
+        self.logger.threaddebug(u"configRTS (1) for knownDevices[%s] = %s" % (address, str(self.knownDevices[address])))
+
+        self.knownDevices.setitem_in_item(address, 'status', "Active")
+        devices = self.knownDevices[address]['devices']
+        devices.append(device.id)
+        self.knownDevices.setitem_in_item(address, 'devices', devices)
+
+        self.logger.threaddebug(u"configRTS (2) for knownDevices[%s] = %s" % (address, str(self.knownDevices[address])))
+        
+        
+        device.name = address
+        device.replaceOnServer()
+
+        newProps = device.pluginProps
+        newProps["configDone"] = True
+        device.replacePluginPropsOnServer(newProps)
+
+        self.logger.info(u"Configured RTS Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
     ########################################
 
     def kd101Handler(self, player, frameData):
 
         devAddress = "KD101-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: KD101 frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1040,6 +1128,6 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"%s: Sensor frame received: %s" % (player.device.name, devAddress))
+        self.logger.debug(u"%s: Parrot frame received: %s" % (player.device.name, devAddress))
         
         

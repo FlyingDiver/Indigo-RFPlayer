@@ -138,4 +138,69 @@
             </Field>            
         </ConfigUI>
     </Device>		
+   <Device type="sensor" id="rtsDevice">
+        <Name>RTS Device</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+
+			<Field id="SupportsOnState" type="checkbox" defaultValue="true" hidden="true" />
+			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
+
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" filter="RTS" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+    </Device>		
+   <Device type="relay" id="parrotDevice">
+        <Name>Parrot Device</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="address" type="textfield" hidden="true" />
+            <Field id="houseCode" type="menu" defaultValue="A">
+                <Label>Select House Code:</Label>
+                <List>
+                    <Option value="A">A</Option>
+                    <Option value="B">B</Option>
+                    <Option value="C">C</Option>
+                    <Option value="D">D</Option>
+                    <Option value="E">E</Option>
+                    <Option value="F">F</Option>
+                    <Option value="G">G</Option>
+                    <Option value="H">H</Option>
+                    <Option value="I">I</Option>
+                    <Option value="J">J</Option>
+                    <Option value="K">K</Option>
+                    <Option value="L">L</Option>
+                    <Option value="M">M</Option>
+                    <Option value="N">N</Option>
+                    <Option value="O">O</Option>
+                    <Option value="P">P</Option>
+                </List>
+            </Field>			
+            <Field id="unitCode" type="menu" defaultValue="1">
+                <Label>Select Unit Code:</Label>
+                <List>
+                    <Option value="1">1</Option>
+                    <Option value="2">2</Option>
+                    <Option value="3">3</Option>
+                    <Option value="4">4</Option>
+                    <Option value="5">5</Option>
+                    <Option value="6">6</Option>
+                    <Option value="7">7</Option>
+                    <Option value="8">8</Option>
+                    <Option value="9">9</Option>
+                    <Option value="10">10</Option>
+                    <Option value="11">11</Option>
+                    <Option value="12">12</Option>
+                    <Option value="13">13</Option>
+                    <Option value="14">14</Option>
+                    <Option value="15">15</Option>
+                    <Option value="16">16</Option>
+                </List>
+            </Field>			
+        </ConfigUI>
+    </Device>		
 </Devices>
