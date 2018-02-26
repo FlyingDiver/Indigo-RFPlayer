@@ -24,15 +24,7 @@
 			</Field>
         </ConfigUI>
     </MenuItem>
-    <MenuItem id="dumpKnownDevices">
-    	<Name>Write Known Device List to Log</Name>
-    	<CallbackMethod>dumpKnownDevices</CallbackMethod>
-    </MenuItem>
-    <MenuItem id="clearKnownDevices">
-    	<Name>Clear Known Device List</Name>
-    	<CallbackMethod>clearKnownDevices</CallbackMethod>
-    </MenuItem>
-	<Field id="simpleSeparator1" type="separator"/>
+	<MenuItem id="simpleSeparator1" type="separator"/>
     <MenuItem id="checkForUpdates">
     	<Name>Check for Updates</Name>
     	<CallbackMethod>checkForUpdates</CallbackMethod>
@@ -44,5 +36,14 @@
     <MenuItem id="forceUpdate">
         <Name>Force Update</Name>
         <CallbackMethod>forceUpdate</CallbackMethod>
+    </MenuItem>
+    <MenuItem id="titleSeparator2" type="separator" />
+    <MenuItem id="dumpKnownDevices">
+    	<Name>Write Known Device List to Log</Name>
+    	<CallbackMethod>dumpKnownDevices</CallbackMethod>
+    </MenuItem>
+    <MenuItem id="clearKnownDevices">
+    	<Name>Clear Known Device List</Name>
+    	<CallbackMethod>clearKnownDevices</CallbackMethod>
     </MenuItem>
 </MenuItems>

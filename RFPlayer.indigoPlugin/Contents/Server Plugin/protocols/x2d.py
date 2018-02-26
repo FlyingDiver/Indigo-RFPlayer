@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class X2D(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "X2D-" + frameData['infos']['id']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.X2D")

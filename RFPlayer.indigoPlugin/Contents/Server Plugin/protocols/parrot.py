@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Parrot(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "PARROT-" + frameData['infos']['idMeaning']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Parrot")

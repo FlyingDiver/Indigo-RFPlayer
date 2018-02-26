@@ -1,6 +1,14 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Visonic(object):
 
-     def __init__(self, device):
+    @classmethod
+    def getAddress(cls, frameData):
+        return "VISONIC-" + frameData['infos']['id']
+
+
+    def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Visonic")
         self.device = device
         self.logger.debug(u"%s: Starting Visonic device" % device.name)

@@ -1,5 +1,13 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Chacon(object):
 
+    @classmethod
+    def getAddress(cls, frameData):
+        return "CHACON-" + frameData['infos']['id']
+
+    
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Chacon")
         self.device = device

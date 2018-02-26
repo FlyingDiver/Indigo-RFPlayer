@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class RTS(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "RTS-" + frameData['infos']['id']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.RTS")

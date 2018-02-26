@@ -1,4 +1,12 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Domia(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "DOMIA-" + frameData['infos']['idMeaning']
+
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Domia")
@@ -57,6 +65,4 @@ class Domia(object):
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
-
-    def configDomia(self, device):
 

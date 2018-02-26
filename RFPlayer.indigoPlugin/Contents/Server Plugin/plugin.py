@@ -10,7 +10,7 @@ import logging
 from ghpu import GitHubPluginUpdater
 
 from RFPlayer import RFPlayer
-import protocols
+from protocols import Blyss, Chacon, Domia, KD101, Oregon, Owl, Parrot, RTS, Visonic, X2D, X10
 
 kCurDevVersCount = 0        # current version of plugin devices
 
@@ -38,18 +38,18 @@ class Plugin(indigo.PluginBase):
         self.players = { }
         self.sensorDevices = {}
         
-        self.protocolNames = {
-            "1"  : "X10",
-            "2"  : "VISONIC",
-            "3"  : "BLYSS",
-            "4"  : "CHACON",
-            "5"  : "OREGON",
-            "6"  : "DOMIA",
-            "7"  : "OWL",
-            "8"  : "X2D",
-            "9"  : "RTS",
-            "10" : "KD101",
-            "11" : "PARROT"
+        self.protocolClasses = {
+            "1"  : X10,
+            "2"  : Visonic,
+            "3"  : Blyss,
+            "4"  : Chacon,
+            "5"  : Oregon,
+            "6"  : Domia,
+            "7"  : Owl,
+            "8"  : X2D,
+            "9"  : RTS,
+            "10" : KD101,
+            "11" : Parrot
         }
         
         self.updater = GitHubPluginUpdater(self)
@@ -84,29 +84,33 @@ class Plugin(indigo.PluginBase):
                
                         elif 'frame' in playerFrame:    # async frame.  Find a device to handle it
             
-                            protocol = playerFrame['frame']['header']['protocol']
-                            if protocol in self.protocolNames:
-                                devAddress = self.protocolNames[protocol] + "-" + playerFrame['frame']['infos']['id']
-                                if devAddress in sensorDevices:
-                                    self.sensorDevices[devAddress].handler(player, playerFrame['frame'])
+                            try:
+                                protocol = playerFrame['frame']['header']['protocol']
+                                if protocol in self.protocolClasses:
+                                    devAddress = self.protocolClasses[protocol].getAddress(playerFrame['frame'])
+                                    if devAddress in self.sensorDevices:
+                                        self.sensorDevices[devAddress].handler(player, playerFrame['frame'])
 
-                                elif devAddress not in knownDevices:                                        
-                                    self.logger.info("New device detected: %s" % (devAddress))
-                                    self.knownDevices[devAddress] = { 
-                                        "status": "Available", 
-                                        "devices" : indigo.List(),
-                                        "protocol": protocol, 
-                                        "protocolMeaning": playerFrame['frame']['header']['protocolMeaning'], 
-                                        "infoType": playerFrame['frame']['header']['infoType'], 
-                                        "subType": playerFrame['frame']['infos']['subType'],
-                                        "description": playerFrame['frame']['infos']['subTypeMeaning'],
-                                    }
+                                    elif devAddress not in self.knownDevices:                                        
+                                        self.logger.info("New device detected: %s" % (devAddress))
+                                        self.knownDevices[devAddress] = { 
+                                            "status": "Available", 
+                                            "devices" : indigo.List(),
+                                            "protocol": protocol, 
+                                            "protocolMeaning": playerFrame['frame']['header']['protocolMeaning'], 
+                                            "infoType": playerFrame['frame']['header']['infoType'], 
+                                            "subType": playerFrame['frame']['infos']['subType'],
+                                        }
+                                        self.logger.debug("New device info:\n%s" % (playerFrame['frame']))
+                                else:
+                                    self.logger.error(u"%s: Unknown protocol:\n%s" %  (player.device.name, str(playerFrame)))      
 
-                            else:
-                                self.logger.error(u"%s: Unknown protocol:\n" %  (player.device.name, str(playerFrame)))      
+                            except Exception, e:
+                                self.logger.debug(u"%s: Frame decode error:%s\n%s" %  (player.device.name, str(e), str(playerFrame)))      
+                                
             
                         else:
-                            self.logger.error(u"%s: Unknown playerFrame:\n" %  (player.device.name, str(playerFrame)))      
+                            self.logger.error(u"%s: Unknown playerFrame:\n%s" %  (player.device.name, str(playerFrame)))      
     
                 if (self.updateFrequency > 0.0) and (time.time() > self.next_update_check):
                     self.next_update_check = time.time() + self.updateFrequency
@@ -240,7 +244,7 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(u"%s: Stopping sensor device" % device.name)
             try:
                 del self.sensorDevices[device.id]
-            else:
+            except:
                 self.logger.error(u"%s: Unregistered sensor device" % device.name)
             
 
@@ -478,10 +482,11 @@ class Plugin(indigo.PluginBase):
         self.updater.update(currentVersion='0.0.0')
 
     def dumpKnownDevices(self):
-        self.logger.info(str(self.knownDevices))
+        self.logger.info(u"Known device list:\n" + str(self.knownDevices))
         
     def clearKnownDevices(self):
         self.knownDevices = indigo.Dict()
+        self.logger.info(u"Known device list cleared")
 
     def sendCommandMenu(self, valuesDict, typeId):
         try:

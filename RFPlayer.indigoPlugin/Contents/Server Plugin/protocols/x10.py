@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class X10(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "DOMIA-" + frameData['infos']['idMeaning']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.X10")

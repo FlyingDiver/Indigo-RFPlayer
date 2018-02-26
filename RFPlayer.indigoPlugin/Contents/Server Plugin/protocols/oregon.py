@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Oregon(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "OREGON-" + frameData['infos']['adr_channel']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Oregon")
@@ -34,10 +41,10 @@ class Oregon(object):
                 if valueType == "temperature":
                     if not self.useFarenheit:
                         value = float(rawValue)
-                        valueString = "%.1f °C" % value
+                        valueString = u"%.1f °C" % value
                     else:
                         value = 9.0/5.0 * float(rawValue) + 32.0
-                        valueString = "%.1f °F" % value
+                        valueString = u"%.1f °F" % value
                 
                 elif valueType == "hygrometry":
                     value = int(rawValue)

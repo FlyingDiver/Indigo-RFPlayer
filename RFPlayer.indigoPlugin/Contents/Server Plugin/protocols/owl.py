@@ -1,4 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Owl(object):
+
+    @classmethod
+    def getAddress(cls, frameData):
+        return "DOMIA-" + frameData['infos']['id']
 
     def __init__(self, device):
         self.logger = logging.getLogger("Plugin.Owl")
