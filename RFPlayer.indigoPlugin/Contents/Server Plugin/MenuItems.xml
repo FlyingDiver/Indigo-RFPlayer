@@ -20,9 +20,17 @@
 			</Field>
 			<Field id="simpleSeparator1" type="separator"/>
 			<Field id="messageNote" type="label" fontSize="small" fontColor="darkgray">
-				<Label>Variable and Device State Substitution is enabled for all fields. Use the format %%v:12345%% for variables and %%d:12345:someStateId%% for device states.</Label>
+				<Label>Variable and Device State Substitution is enabled for all fields. Use %%v:12345%% for variables and %%d:12345:someStateId%% for device states.</Label>
 			</Field>
         </ConfigUI>
+    </MenuItem>
+    <MenuItem id="dumpKnownDevices">
+    	<Name>Write Known Device List to Log</Name>
+    	<CallbackMethod>dumpKnownDevices</CallbackMethod>
+    </MenuItem>
+    <MenuItem id="clearKnownDevices">
+    	<Name>Clear Known Device List</Name>
+    	<CallbackMethod>clearKnownDevices</CallbackMethod>
     </MenuItem>
 	<Field id="simpleSeparator1" type="separator"/>
     <MenuItem id="checkForUpdates">

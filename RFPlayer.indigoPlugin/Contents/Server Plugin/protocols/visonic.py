@@ -1,23 +1,15 @@
-    def visonicHandler(self, player, frameData):
+class Visonic(object):
+
+     def __init__(self, device):
+        self.logger = logging.getLogger("Plugin.Visonic")
+        self.device = device
+        self.logger.debug(u"%s: Starting Visonic device" % device.name)
+
+    def handler(self, player, frameData):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
-
-        # make sure this device is in the list of known sensor devices
-        
-        if devAddress not in self.knownDevices:
-            self.logger.info("New Visonic Device %s" % (devAddress))
-            self.knownDevices[devAddress] = { 
-                "status": "Available", 
-                "devices" : indigo.List(),
-                "protocol": frameData['header']['protocol'], 
-                "protocolMeaning": frameData['header']['protocolMeaning'], 
-                "infoType": frameData['header']['infoType'], 
-                "subType": frameData['infos']['subType'],
-                "description": frameData['infos']['subTypeMeaning'],
-            }
-            self.logger.debug(u"added new known device: %s = %s" % (devAddress, unicode(self.knownDevices[devAddress])))
+        self.logger.threaddebug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
             
         # Is this a configured device?
         self.logger.threaddebug(u"%s: Update pending, checking knownDevices = %s" % (player.device.name, str(self.knownDevices[devAddress])))

@@ -1,8 +1,15 @@
-    def rtsHandler(self, player, frameData):
+class RTS(object):
+
+    def __init__(self, device):
+        self.logger = logging.getLogger("Plugin.RTS")
+        self.device = device
+        self.logger.debug(u"%s: Starting RTS device" % device.name)
+
+    def handler(self, player, frameData):
 
         devAddress = "RTS-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))
     
         # make sure this device is in the list of known sensor devices
         

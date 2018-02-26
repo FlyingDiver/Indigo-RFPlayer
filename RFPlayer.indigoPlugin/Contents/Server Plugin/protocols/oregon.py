@@ -1,31 +1,16 @@
-    def oregonHandler(self, player, frameData):
+class Oregon(object):
+
+    def __init__(self, device):
+        self.logger = logging.getLogger("Plugin.Oregon")
+        self.device = device
+        self.logger.debug(u"%s: Starting Oregon Scientific device" % device.name)
+
+    def handler(self, player, frameData):
 
         devAddress = "OREGON-" + frameData['infos']['adr_channel']
 
-        self.logger.debug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
-        
-        # make sure this device is in the list of known sensor devices
-        
-        if devAddress not in self.knownDevices:
-            self.logger.info("New Oregon Device %s - %s (%s)" % (devAddress, frameData['infos']['id_PHYMeaning'], frameData['infos']['id_PHY']))
-            self.knownDevices[devAddress] = { 
-                "status": "Available", 
-                "devices" : indigo.List(),
-                "protocol": frameData['header']['protocol'], 
-                "protocolMeaning": frameData['header']['protocolMeaning'], 
-                "infoType": frameData['header']['infoType'], 
-                "subType": frameData['infos']['id_PHY'],
-                "description": frameData['infos']['id_PHYMeaning'],
-            }
-            self.logger.debug(u"added new known device: %s = %s" % (devAddress, unicode(self.knownDevices[devAddress])))
-            
-        # Is this a configured device?
-        self.logger.threaddebug(u"%s: Update pending, checking knownDevices = %s" % (player.device.name, str(self.knownDevices[devAddress])))
-        
-        if not (self.knownDevices[devAddress]['status'] == 'Active'):             # not in use
-            self.logger.threaddebug(u"%s: Device %s not active, skipping update" % (player.device.name, devAddress))
-            return
-            
+        self.logger.threaddebug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
+                    
         deviceList = self.knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             if deviceId not in self.sensorDevices:
