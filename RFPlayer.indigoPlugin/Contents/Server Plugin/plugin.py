@@ -595,7 +595,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X10-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: X10 frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: X10 frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -636,7 +636,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -707,7 +707,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "BLYSS-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Sensor Blyss received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Sensor Blyss received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -715,7 +715,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "CHACON-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Chacon frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Chacon frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -723,7 +723,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OREGON-" + frameData['infos']['adr_channel']
 
-        self.logger.debug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
         
         # make sure this device is in the list of known sensor devices
         
@@ -964,7 +964,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: Domia frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Domia frame received: %s" % (player.device.name, devAddress))
 
         # make sure this device is in the list of known sensor devices
         
@@ -1035,7 +1035,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "OWL-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: Owl frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Owl frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1043,7 +1043,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "X2D-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: X2D frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: X2D frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1051,7 +1051,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "RTS-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))
     
         # make sure this device is in the list of known sensor devices
         
@@ -1120,7 +1120,7 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "KD101-" + frameData['infos']['id']
 
-        self.logger.debug(u"%s: KD101 frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: KD101 frame received: %s" % (player.device.name, devAddress))
 
     ########################################
 
@@ -1128,6 +1128,6 @@ class Plugin(indigo.PluginBase):
 
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
-        self.logger.debug(u"%s: Parrot frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"%s: Parrot frame received: %s" % (player.device.name, devAddress))
         
         
