@@ -89,7 +89,7 @@ class Plugin(indigo.PluginBase):
                         elif 'frame' in playerFrame:                        # async frame received - dispatch to the handler for the frame's protocol
             
                             protocol = playerFrame['frame']['header']['protocol']
-                            if protocol in protocolHandlers:
+                            if protocol in self.protocolHandlers:
                                 self.protocolHandlers[protocol](player, playerFrame['frame'])
                             else:
                                 self.logger.error(u"%s: Unknown protocol:\n" %  (player.device.name, str(playerFrame)))      
