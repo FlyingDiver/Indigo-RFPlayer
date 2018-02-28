@@ -1,36 +1,41 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import indigo
+
 class Domia(object):
 
     @classmethod
     def getAddress(cls, frameData):
         return "DOMIA-" + frameData['infos']['idMeaning']
 
+    @classmethod
+    def getDescription(cls, frameData):
+        return frameData['infos']['subTypeMeaning']
 
-    def __init__(self, device):
+    @classmethod
+    def getSubType(cls, frameData):
+        return frameData['infos']['subType']
+
+    def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Domia")
         self.device = device
-        self.logger.debug(u"%s: Starting Domia device" % device.name)
 
-        configDone = device.pluginProps.get('configDone', False)
-        self.logger.debug(u" %s: configDomia, configDone = %s" % (device.name, str(configDone)))
+        devAddress = device.pluginProps['address']
+        subType = knownDevices[devAddress]['subType']
+        self.logger.debug(u"%s: Starting Domia device (%s) @ %s" % (device.name, subType, devAddress))
         
+        configDone = device.pluginProps.get('configDone', False)
+        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
         if configDone:
             return
 
-        address = device.pluginProps['address']
-
-        self.logger.threaddebug(u"configDomia (1) for knownDevices[%s] = %s" % (address, str(self.knownDevices[address])))
-
-        self.knownDevices.setitem_in_item(address, 'status', "Active")
-        devices = self.knownDevices[address]['devices']
+        knownDevices.setitem_in_item(devAddress, 'status', "Active")
+        devices = knownDevices[devAddress]['devices']
         devices.append(device.id)
-        self.knownDevices.setitem_in_item(address, 'devices', devices)
-
-        self.logger.threaddebug(u"configDomia (2) for knownDevices[%s] = %s" % (address, str(self.knownDevices[address])))
-        
-        
+        knownDevices.setitem_in_item(devAddress, 'devices', devices)
+                
         device.name = address
         device.replaceOnServer()
 
@@ -41,25 +46,20 @@ class Domia(object):
         self.logger.info(u"Configured configDomia Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
        
 
-    def handler(self, player, frameData):
+    def handler(self, player, frameData, knownDevices):
 
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
 
         self.logger.threaddebug(u"%s: Domia frame received: %s" % (player.device.name, devAddress))
             
-        # Is this a configured device?
-        self.logger.threaddebug(u"%s: Update pending, checking knownDevices = %s" % (player.device.name, str(self.knownDevices[devAddress])))
-        
-        if not (self.knownDevices[devAddress]['status'] == 'Active'):             # not in use
-            self.logger.threaddebug(u"%s: Device %s not active, skipping update" % (player.device.name, devAddress))
-            return
-            
-        deviceList = self.knownDevices[devAddress]['devices']
+        deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
-            if deviceId not in self.sensorDevices:
-                self.logger.error(u"Device configuration error - 'Active' device not in sensor list: %s" % (devAddress))
+            try:
+                sensor = indigo.devices[deviceId]
+            except:
+                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
                 continue
-                
+                                
             sensor = self.sensorDevices[deviceId]       
             sensorState = frameData['infos']['qualifier']
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        

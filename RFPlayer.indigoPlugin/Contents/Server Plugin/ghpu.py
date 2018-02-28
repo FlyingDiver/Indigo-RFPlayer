@@ -141,12 +141,12 @@ class GitHubPluginUpdater(object):
         data = None
         f = subprocess.Popen(["/usr/bin/curl",  'https://api.github.com'+ requestPath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         out, err = f.communicate()
-        self.logger.debug(u'HTTP Err result: ' + unicode(err) )
+        self.logger.threaddebug(u'HTTP Err result: ' + unicode(err) )
         self.logger.debug(u'ReturnCode:{0}'.format(unicode(f.returncode)))
       
         if (int(f.returncode) == 0):
             data = json.loads(out)
-            self.logger.debug(u'Json results:' + unicode(data))
+            self.logger.threaddebug(u'Json results:' + unicode(data))
         elif (400 <= f.status < 500):
             error = json.loads(out)
             self.logger.error('%s' % error['message'])

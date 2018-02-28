@@ -38,6 +38,10 @@
         <CallbackMethod>forceUpdate</CallbackMethod>
     </MenuItem>
     <MenuItem id="titleSeparator2" type="separator" />
+    <MenuItem id="dumpSensorDevices">
+    	<Name>Write Sensor Device List to Log</Name>
+    	<CallbackMethod>dumpSensorDevices</CallbackMethod>
+    </MenuItem>
     <MenuItem id="dumpKnownDevices">
     	<Name>Write Known Device List to Log</Name>
     	<CallbackMethod>dumpKnownDevices</CallbackMethod>

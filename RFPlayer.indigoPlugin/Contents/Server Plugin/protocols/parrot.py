@@ -1,31 +1,49 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import indigo
+
 class Parrot(object):
 
     @classmethod
     def getAddress(cls, frameData):
         return "PARROT-" + frameData['infos']['idMeaning']
 
-    def __init__(self, device):
+    @classmethod
+    def getDescription(cls, frameData):
+        return "PARROT-" + frameData['infos']['idMeaning']
+
+    @classmethod
+    def getSubType(cls, frameData):
+        return 'None'
+
+    def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Parrot")
         self.device = device
-        self.logger.debug(u"%s: Starting Parrot device '%s'" % (device.name,device.address))
 
-        device.name = device.address
+        devAddress = device.pluginProps['address']
+        subType = knownDevices[devAddress]['subType']
+        self.logger.debug(u"%s: Starting Parrot device (%s) @ %s" % (device.name, subType, devAddress))
+        
+        configDone = device.pluginProps.get('configDone', False)
+        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        if configDone:
+            return
+
+        knownDevices.setitem_in_item(devAddress, 'status', "Active")
+        devices = knownDevices[devAddress]['devices']
+        devices.append(device.id)
+        knownDevices.setitem_in_item(devAddress, 'devices', devices)
+        
+        device.name = address
         device.replaceOnServer()
-        if device.address not in self.knownDevices:
-            self.logger.info("New Parrot Device %s" % (device.address))
-            self.knownDevices[device.address] = { 
-                "status": "Active", 
-                "devices" : [device.id],
-                "protocol": "1", 
-                "protocolMeaning": "Parrot", 
-                "infoType": "0", 
-                "subType": 'None',
-                "description": device.address,
-            }
-            self.logger.debug(u"added new known device: %s = %s" % (device.address, unicode(self.knownDevices[device.address])))
+
+        newProps = device.pluginProps
+        newProps["configDone"] = True
+        device.replacePluginPropsOnServer(newProps)
+
+        self.logger.info(u"Configured Parrot device '%s' (%s) @ %s" % (device.name, device.id, address))
 
     def handler(self, player, frameData):
 

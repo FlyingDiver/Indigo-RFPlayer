@@ -5,6 +5,7 @@
 import sys
 import time
 from datetime import datetime
+import json
 import logging
 
 from ghpu import GitHubPluginUpdater
@@ -32,7 +33,6 @@ class Plugin(indigo.PluginBase):
     def startup(self):
         self.logger.info(u"Starting RFPlayer")
 
-        self.useFarenheit = self.pluginPrefs.get('useFarenheit', True)
         self.knownDevices = indigo.activePlugin.pluginPrefs.get(u"knownDevices", indigo.Dict())
 
         self.players = { }
@@ -89,7 +89,7 @@ class Plugin(indigo.PluginBase):
                                 if protocol in self.protocolClasses:
                                     devAddress = self.protocolClasses[protocol].getAddress(playerFrame['frame'])
                                     if devAddress in self.sensorDevices:
-                                        self.sensorDevices[devAddress].handler(player, playerFrame['frame'])
+                                        self.sensorDevices[devAddress].handler(player, playerFrame['frame'], self.knownDevices)
 
                                     elif devAddress not in self.knownDevices:                                        
                                         self.logger.info("New device detected: %s" % (devAddress))
@@ -99,18 +99,23 @@ class Plugin(indigo.PluginBase):
                                             "protocol": protocol, 
                                             "protocolMeaning": playerFrame['frame']['header']['protocolMeaning'], 
                                             "infoType": playerFrame['frame']['header']['infoType'], 
-                                            "subType": playerFrame['frame']['infos']['subType'],
-                                        }
-                                        self.logger.debug("New device info:\n%s" % (playerFrame['frame']))
+                                            "description": self.protocolClasses[protocol].getDescription(playerFrame['frame']),
+                                            "subType": self.protocolClasses[protocol].getSubType(playerFrame['frame'])
+                                       }
+                                        self.logger.debug("New device info:\n%s" % (json.dumps(playerFrame, indent=4, sort_keys=True)))
+                                    
+                                    else:
+                                        self.logger.threaddebug("%s: Frame from %s, known and not configured.  Ignoring." % (player.device.name, devAddress))
+
                                 else:
-                                    self.logger.error(u"%s: Unknown protocol:\n%s" %  (player.device.name, str(playerFrame)))      
+                                    self.logger.error(u"%s: Unknown protocol:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
 
                             except Exception, e:
-                                self.logger.debug(u"%s: Frame decode error:%s\n%s" %  (player.device.name, str(e), str(playerFrame)))      
+                                self.logger.debug(u"%s: Frame decode error:%s\n%s" %  (player.device.name, str(e), json.dumps(playerFrame, indent=4, sort_keys=True)))      
                                 
             
                         else:
-                            self.logger.error(u"%s: Unknown playerFrame:\n%s" %  (player.device.name, str(playerFrame)))      
+                            self.logger.error(u"%s: Unknown playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
     
                 if (self.updateFrequency > 0.0) and (time.time() > self.next_update_check):
                     self.next_update_check = time.time() + self.updateFrequency
@@ -187,6 +192,8 @@ class Plugin(indigo.PluginBase):
             self.logger.warning(u"%s: Invalid device version: %d" % (device.name, instanceVers))
 
         # Now do the device-specific startup work
+        address = device.pluginProps.get(u'address', "")
+        self.logger.debug(u"%s: Starting device with address: %s" % (device.name,  address))
         
         if device.deviceTypeId == "RFPlayer":
             serialPort = device.pluginProps.get(u'serialPort', "")
@@ -198,37 +205,37 @@ class Plugin(indigo.PluginBase):
         # sensor device types
         
         elif device.deviceTypeId == "blyssDevice":
-            self.sensorDevices[device.id] = Blyss(device)
+            self.sensorDevices[address] = Blyss(device, self.knownDevices)
               
         elif device.deviceTypeId == "chaconDevice":
-            self.sensorDevices[device.id] = Chacon(device)
+            self.sensorDevices[address] = Chacon(device, self.knownDevices)
               
         elif device.deviceTypeId == "domiaDevice":
-            self.sensorDevices[device.id] = Domia(device)
+            self.sensorDevices[address] = Domia(device, self.knownDevices)
               
         elif device.deviceTypeId == "kd101Device":
-            self.sensorDevices[device.id] = KD101(device)
+            self.sensorDevices[address] = KD101(device, self.knownDevices)
                
         elif device.deviceTypeId == "oregonDevice":
-            self.sensorDevices[device.id] = Oregon(device)
+            self.sensorDevices[address] = Oregon(device, self.knownDevices)
                
         elif device.deviceTypeId == "owlDevice":
-            self.sensorDevices[device.id] = Owl(device)
+            self.sensorDevices[address] = Owl(device, self.knownDevices)
                
         elif device.deviceTypeId == "parrotDevice":
-            self.sensorDevices[device.id] = Parrot(device)
+            self.sensorDevices[address] = Parrot(device, self.knownDevices)
               
         elif device.deviceTypeId == "rtsDevice":
-            self.sensorDevices[device.id] = RTS(device)
+            self.sensorDevices[address] = RTS(device, self.knownDevices)
                
         elif device.deviceTypeId == "visonicDevice":
-            self.sensorDevices[device.id] = Visonic(device)
+            self.sensorDevices[address] = Visonic(device, self.knownDevices)
                
         elif device.deviceTypeId == "x2dDevice":
-            self.sensorDevices[device.id] = X2D(device)
+            self.sensorDevices[address] = X2D(device, self.knownDevices)
 
         elif device.deviceTypeId == "x10Device":
-            self.sensorDevices[device.id] = X10(device)
+            self.sensorDevices[address] = X10(device, self.knownDevices)
 
         else:
             self.logger.error(u"%s: Unknown device type: %s in deviceStartComm" % (device.name, device.deviceTypeId))
@@ -242,10 +249,12 @@ class Plugin(indigo.PluginBase):
             del self.players[device.id]
         else:
             self.logger.debug(u"%s: Stopping sensor device" % device.name)
+            address = device.pluginProps.get(u'address', "")
             try:
-                del self.sensorDevices[device.id]
+                del self.sensorDevices[address]
             except:
-                self.logger.error(u"%s: Unregistered sensor device" % device.name)
+                pass
+#                self.logger.error(u"%s: Unregistered sensor device @ %s" % (device.name, address))
             
 
     ########################################
@@ -275,9 +284,7 @@ class Plugin(indigo.PluginBase):
 
         if device.deviceTypeId == "RFPlayer":
             return
-
-        self.logger.threaddebug(u"deviceDeleted (1) knownDevices = %s" % (str(self.knownDevices)))
-            
+         
         try:
             devices = self.knownDevices[device.address]['devices']
             devices.remove(device.id)
@@ -287,8 +294,6 @@ class Plugin(indigo.PluginBase):
         except:
             pass
             
-        self.logger.threaddebug(u"deviceDeleted (2) knownDevices = %s" % (str(self.knownDevices)))
-
     ########################################
     # Control Action callbacks
     ########################################
@@ -481,6 +486,9 @@ class Plugin(indigo.PluginBase):
     def forceUpdate(self):
         self.updater.update(currentVersion='0.0.0')
 
+    def dumpSensorDevices(self):
+        self.logger.info(u"Sensor device list:\n" + str(self.sensorDevices))
+        
     def dumpKnownDevices(self):
         self.logger.info(u"Known device list:\n" + str(self.knownDevices))
         
