@@ -7,21 +7,26 @@ import indigo
 class Blyss(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "BLYSS-" + frameData['infos']['id']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "BLYSS" + frameData['infos']['id']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['id'],
+                "subType": 'None',
+                "playerId": playerDevice.id
+           }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return "BLYSS-" + frameData['infos']['id']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return 'None'
+        return devAddress
 
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Blyss")
         self.device = device
-
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Blyss device (%s) @ %s" % (device.name, subType, devAddress))
@@ -46,7 +51,7 @@ class Blyss(object):
         self.logger.info(u"Configured Blyss device '%s' (%s) @ %s" % (device.name, device.id, address))
        
 
-    def handler(self, player, frameData):
+    def handler(self, player, frameData, knownDevices):
 
         devAddress = "BLYSS-" + frameData['infos']['id']
         self.logger.threaddebug(u"%s: Sensor Blyss received: %s" % (player.device.name, devAddress))

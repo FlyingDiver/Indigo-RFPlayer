@@ -7,21 +7,26 @@ import indigo
 class Domia(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "DOMIA-" + frameData['infos']['idMeaning']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "DOMIA-" + frameData['infos']['idMeaning']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['subTypeMeaning'],
+                "subType": frameData['infos']['subType'],
+                "playerId": playerDevice.id
+            }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return frameData['infos']['subTypeMeaning']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return frameData['infos']['subType']
+        return devAddress
 
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Domia")
         self.device = device
-
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Domia device (%s) @ %s" % (device.name, subType, devAddress))

@@ -7,21 +7,26 @@ import indigo
 class Chacon(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "CHACON-" + frameData['infos']['id']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "CHACON-" + frameData['infos']['id']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['id'],
+                "subType": 'None',
+                "playerId": playerDevice.id
+            }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return "CHACON-" + frameData['infos']['id']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return 'None'
+        return devAddress
 
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Chacon")
         self.device = device
-
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Chacon device (%s) @ %s" % (device.name, subType, devAddress))
@@ -45,9 +50,8 @@ class Chacon(object):
 
         self.logger.info(u"Configured Chacon device '%s' (%s) @ %s" % (device.name, device.id, address))
 
-    def handler(self, player, frameData):
+    def handler(self, player, frameData, knownDevices):
 
         devAddress = "CHACON-" + frameData['infos']['id']
-
         self.logger.threaddebug(u"%s: Chacon frame received: %s" % (player.device.name, devAddress))
 

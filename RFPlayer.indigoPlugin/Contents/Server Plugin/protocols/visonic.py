@@ -7,22 +7,28 @@ import indigo
 class Visonic(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "VISONIC-" + frameData['infos']['id']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "VISONIC-" + frameData['infos']['id']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['subTypeMeaning'],
+                "subType": frameData['infos']['subType'],
+                "playerId": playerDevice.id
+            }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return frameData['infos']['subTypeMeaning']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return frameData['infos']['subType']
+        return devAddress
 
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Visonic")
         self.device = device
-
         devAddress = device.pluginProps['address']
+        self.player = indigo.devices[int(knownDevices[devAddress]['playerId'])]
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Visonic device (%s) @ %s" % (device.name, subType, devAddress))
         
@@ -36,36 +42,34 @@ class Visonic(object):
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
         
-        device.name = address
+        device.name = devAddress
         device.replaceOnServer()
 
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured Visonic Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
+        self.logger.info(u"Configured Visonic Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
        
 
-    def handler(self, player, frameData):
+    def handler(self, player, frameData, knownDevices):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
 
         self.logger.threaddebug(u"%s: Visonic frame received: %s" % (player.device.name, devAddress))
             
-        # Is this a configured device?
-        self.logger.threaddebug(u"%s: Update pending, checking knownDevices = %s" % (player.device.name, str(self.knownDevices[devAddress])))
-        
-        if not (self.knownDevices[devAddress]['status'] == 'Active'):             # not in use
-            self.logger.threaddebug(u"%s: Device %s not active, skipping update" % (player.device.name, devAddress))
-            return
-            
-        deviceList = self.knownDevices[devAddress]['devices']
+        deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
-            if deviceId not in self.sensorDevices:
-                self.logger.error(u"Device configuration error - 'Active' device not in sensor list: %s" % (devAddress))
+            try:
+                sensor = indigo.devices[deviceId]
+            except:
+                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
                 continue
-                
-            sensor = self.sensorDevices[deviceId]       
+
             sensorState = frameData['infos']['qualifier']
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
+            if sensorState == '0':
+                sensor.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
+            else:
+                sensor.updateStateImageOnServer(indigo.kStateImageSel.SensorOn)

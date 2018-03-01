@@ -7,22 +7,28 @@ import indigo
 class Oregon(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "OREGON-" + frameData['infos']['adr_channel']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "OREGON-" + frameData['infos']['adr_channel']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['id_PHYMeaning'],
+                "subType": frameData['infos']['id_PHY'],
+                "playerId": playerDevice.id
+            }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return frameData['infos']['id_PHYMeaning']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return frameData['infos']['id_PHY']
-
+        return devAddress
+    
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Oregon")
         self.device = device
-
         devAddress = device.pluginProps['address']
+        self.player = indigo.devices[int(knownDevices[devAddress]['playerId'])]
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Oregon Scientific device (%s) @ %s" % (device.name, subType, devAddress))
         

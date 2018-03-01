@@ -7,21 +7,26 @@ import indigo
 class X2D(object):
 
     @classmethod
-    def getAddress(cls, frameData):
-        return "X2D-" + frameData['infos']['id']
+    def frameCheck(cls, playerDevice, frameData, knownDevices):
+        devAddress = "X2D-" + frameData['infos']['id']
+        if devAddress not in knownDevices:                                        
+            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            knownDevices[devAddress] = { 
+                "status": "Available", 
+                "devices" : indigo.List(),
+                "protocol": frameData['header']['protocol'], 
+                "description": frameData['infos']['id'],
+                "playerId": playerDevice.id,
+                "subType": 'None'
+            }
+        else:
+            knownDevices[devAddress]["playerId"] = playerDevice.id
 
-    @classmethod
-    def getDescription(cls, frameData):
-        return "X2D-" + frameData['infos']['id']
-
-    @classmethod
-    def getSubType(cls, frameData):
-        return 'None'
+        return devAddress
 
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.X2D")
         self.device = device
-
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting X2D device (%s) @ %s" % (device.name, subType, devAddress))
@@ -45,7 +50,7 @@ class X2D(object):
 
         self.logger.info(u"Configured X2D device '%s' (%s) @ %s" % (device.name, device.id, address))
 
-    def handler(self, player, frameData):
+    def handler(self, player, frameData, knownDevices):
 
         devAddress = "X2D-" + frameData['infos']['id']
 
