@@ -25,6 +25,29 @@
 		        </List>
 	        </Field>	
 		</ConfigUI>	
+        <States>
+            <State id="firmwareVers">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Firmware Version</TriggerLabel>
+                <ControlPageLabel>Firmware Version</ControlPageLabel>
+            </State>
+            <State id="lowBandFreq">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Low Band</TriggerLabel>
+                <ControlPageLabel>Low Band</ControlPageLabel>
+            </State>
+            <State id="highBandFreq">
+                <ValueType>String</ValueType>
+                <TriggerLabel>High Band</TriggerLabel>
+                <ControlPageLabel>High Band</ControlPageLabel>
+            </State>
+            <State id="playerStatus">
+                <ValueType>String</ValueType>
+                <TriggerLabel>RFPlayer Status</TriggerLabel>
+                <ControlPageLabel>RFPlayer Status</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>playerStatus</UiDisplayStateId>
     </Device>		
    <Device type="sensor" id="domiaDevice">
         <Name>Domia Sensor</Name>
@@ -51,6 +74,7 @@
 			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
 			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
 			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="SupportsBatteryLevel" type="checkbox" defaultValue="true" hidden="true" />
 
             <Field id="address" type="menu">
                 <Label>Device:</Label>
@@ -137,6 +161,7 @@
 			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
 			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
 			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="SupportsBatteryLevel" type="checkbox" defaultValue="true" hidden="true" />
 
             <Field id="address" type="menu">
                 <Label>Device:</Label>

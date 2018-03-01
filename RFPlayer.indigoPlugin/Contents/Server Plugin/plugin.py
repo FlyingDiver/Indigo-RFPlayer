@@ -13,7 +13,7 @@ from ghpu import GitHubPluginUpdater
 from RFPlayer import RFPlayer
 from protocols import Blyss, Chacon, Domia, KD101, Oregon, Owl, Parrot, RTS, Visonic, X2D, X10
 
-kCurDevVersCount = 0        # current version of plugin devices
+kCurDevVersCount = 1        # current version of plugin devices
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -83,13 +83,27 @@ class Plugin(indigo.PluginBase):
                 for playerID, player in self.players.items():
                     playerFrame = player.poll()
                     if playerFrame:
+                        indigo.devices[playerID].updateStateOnServer(key='playerStatus', value='Running')
                         if 'systemStatus' in playerFrame:
                             self.logger.debug(u"%s: systemStatus received" % (player.device.name))
                             self.logger.threaddebug(u"%s: systemStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
+                            stateList = [
+                                { 'key':'firmwareVers', 'value':playerFrame[u'systemStatus'][u'info'][0][u'v'] }
+                            ]
+                            self.logger.threaddebug(u'%s: Updating states on server: %s' % (player.device.name, str(stateList)))
+                            indigo.devices[playerID].updateStatesOnServer(stateList)
                     
                         elif 'radioStatus' in playerFrame:
                             self.logger.debug(u"%s: radioStatus received" % (player.device.name))
                             self.logger.threaddebug(u"%s: radioStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
+                            stateList = [
+                                { 'key':'lowBandFreq',   
+                                'value':playerFrame[u'radioStatus'][u'band'][0][u'i'][0][u'v']+' - '+ playerFrame[u'radioStatus'][u'band'][0][u'i'][0][u'c'] },
+                                { 'key':'highBandFreq',
+                                'value':playerFrame[u'radioStatus'][u'band'][1][u'i'][0][u'v']+' - '+ playerFrame[u'radioStatus'][u'band'][1][u'i'][0][u'c'] }
+                            ]
+                            self.logger.threaddebug(u'%s: Updating states on server: %s' % (player.device.name, str(stateList)))
+                            indigo.devices[playerID].updateStatesOnServer(stateList)
                
                         elif 'parrotStatus' in playerFrame:
                             self.logger.debug(u"%s: parrotStatus received" % (player.device.name))
@@ -187,15 +201,17 @@ class Plugin(indigo.PluginBase):
         elif instanceVers < kCurDevVersCount:
             newProps = device.pluginProps
 
-            # do version specific updates here
-            
             newProps["devVersCount"] = kCurDevVersCount
+            if device.deviceTypeId in ['visonicDevice', 'oregonDevice']:
+                newProps["SupportsBatteryLevel"] = True
+                self.logger.debug(u"%s: Updated device SupportsBatteryLevel = True" % (device.name))
+                
+            
             device.replacePluginPropsOnServer(newProps)
             device.stateListOrDisplayStateIdChanged()
             self.logger.debug(u"%s: Updated device version: %d -> %d" % (device.name,  instanceVers, kCurDevVersCount))
         else:
             self.logger.warning(u"%s: Invalid device version: %d" % (device.name, instanceVers))
-
         
         if device.deviceTypeId == "RFPlayer":
             serialPort = device.pluginProps.get(u'serialPort', "")
@@ -203,6 +219,7 @@ class Plugin(indigo.PluginBase):
             player = RFPlayer(self, device)
             player.start(serialPort, baudRate)
             self.players[device.id] = player
+            device.updateStateOnServer(key='playerStatus', value='Starting')
         
         else:
             address = device.pluginProps.get(u'address', "")
@@ -216,6 +233,7 @@ class Plugin(indigo.PluginBase):
     def deviceStopComm(self, device):
         if device.deviceTypeId == "RFPlayer":
             self.logger.debug(u"%s: Stopping Interface device" % device.name)
+            device.updateStateOnServer(key='playerStatus', value='Stopping')
             player = self.players[device.id]
             player.stop()
             del self.players[device.id]
@@ -354,6 +372,7 @@ class Plugin(indigo.PluginBase):
         try:
             self.logger.debug(u"setFrequencyAction for %s, band = %s, lowBand = %s, highBand = %s " % (playerDevice.name, band, lowBand, highBand))
             player.sendRawCommand(command)
+            player.sendRawCommand("STATUS RADIO JSON")
         except Exception, e:
             self.logger.exception(u"setFrequencyAction error: %s" % str(e))
 

@@ -28,9 +28,9 @@ class Oregon(object):
         self.logger = logging.getLogger("Plugin.Oregon")
         self.device = device
         devAddress = device.pluginProps['address']
-        self.player = indigo.devices[int(knownDevices[devAddress]['playerId'])]
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Oregon Scientific device (%s) @ %s" % (device.name, subType, devAddress))
+        self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
         self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
@@ -213,6 +213,17 @@ class Oregon(object):
                 self.logger.error(u"Device configuration error - 'valueType' not configured: %s" % (devAddress))
                 return
         
+            # only update battery on root device of group
+            
+            groupList = indigo.device.getGroupList(deviceId)
+            rootDevice = indigo.devices[groupList[0]]
+            if deviceId == rootDevice:        
+                qualifier = frameData['infos']['qualifier']
+                if int(qualifier) & 1:
+                    sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
+                else:
+                    sensor.updateStateOnServer('batteryLevel', '80', uiValue='80%')
+                        
             self.logger.threaddebug(u"%s: Updating sensor %s with valueType = %s" % (sensor.name, devAddress, valueType))
             measures = frameData['infos']['measures']
             for x in measures:

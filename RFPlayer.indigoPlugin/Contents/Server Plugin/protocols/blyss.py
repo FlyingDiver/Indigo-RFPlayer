@@ -30,6 +30,7 @@ class Blyss(object):
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Blyss device (%s) @ %s" % (device.name, subType, devAddress))
+        self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
         self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))

@@ -28,9 +28,9 @@ class Visonic(object):
         self.logger = logging.getLogger("Plugin.Visonic")
         self.device = device
         devAddress = device.pluginProps['address']
-        self.player = indigo.devices[int(knownDevices[devAddress]['playerId'])]
         subType = knownDevices[devAddress]['subType']
         self.logger.debug(u"%s: Starting Visonic device (%s) @ %s" % (device.name, subType, devAddress))
+        self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
         self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
@@ -67,7 +67,12 @@ class Visonic(object):
                 continue
 
             sensorState = frameData['infos']['qualifier']
-            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))
+            if int(sensorState) & 4:
+                sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
+            else:
+                sensor.updateStateOnServer('batteryLevel', '80', uiValue='80%')
+                        
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
             if sensorState == '0':
                 sensor.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)

@@ -57,13 +57,14 @@ class X10(object):
 
         self.logger.threaddebug(u"%s: X10 frame received: %s" % (player.device.name, devAddress))
             
-        deviceList = self.knownDevices[devAddress]['devices']
+        deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
-            if deviceId not in self.sensorDevices:
-                self.logger.error(u"Device configuration error - 'Active' device not in sensor list: %s" % (devAddress))
+            try:
+                sensor = indigo.devices[deviceId]
+            except:
+                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
                 continue
-                
-            sensor = self.sensorDevices[deviceId]       
+                                
             sensorState = frameData['infos']['subType']
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))       
@@ -75,7 +76,7 @@ class X10(object):
     def turnOn(self, rfPlayer):
         self.logger.debug("Turn On for %s" % (self.device.address))
         
-        cmdString = "ON %s X10" % (self.device.address[7:])
+        cmdString = "ON %s X10" % (self.device.address[4:])
         
         try:
             self.logger.debug(u"X10 turnOn command '" + cmdString + "' to " + self.player.name)
@@ -89,7 +90,7 @@ class X10(object):
     def turnOff(self, rfPlayer):
         self.logger.debug("Turn Off for %s" % (self.device.address))
         
-        cmdString = "OFF %s X10" % (self.device.address[7:])
+        cmdString = "OFF %s X10" % (self.device.address[4:])
         
         try:
             self.logger.debug(u"X10 turnOff command '" + cmdString + "' to " + self.player.name)

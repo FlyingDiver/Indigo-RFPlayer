@@ -54,6 +54,19 @@ class Parrot(object):
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
         self.logger.threaddebug(u"%s: Parrot frame received: %s" % (player.device.name, devAddress))
+
+        deviceList = knownDevices[devAddress]['devices']
+        for deviceId in deviceList:
+            try:
+                sensor = indigo.devices[deviceId]
+            except:
+                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+                continue
+                                
+            sensorState = frameData['infos']['subType']
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))       
+
         
     def requestStatus(self, rfPlayer):
         self.logger.debug("Request Status for %s" % (self.device.address))        
