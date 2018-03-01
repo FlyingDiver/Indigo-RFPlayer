@@ -13,7 +13,7 @@ from ghpu import GitHubPluginUpdater
 from RFPlayer import RFPlayer
 from protocols import Blyss, Chacon, Domia, KD101, Oregon, Owl, Parrot, RTS, Visonic, X2D, X10
 
-kCurDevVersCount = 1        # current version of plugin devices
+kCurDevVersCount = 2        # current version of plugin devices
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -36,7 +36,8 @@ class Plugin(indigo.PluginBase):
         self.players = { }
         self.sensorDevices = {}
         self.knownDevices = indigo.activePlugin.pluginPrefs.get(u"knownDevices", indigo.Dict())
-        
+        self.triggers = {}
+       
         self.protocolClasses = {
             "1"  : X10,
             "2"  : Visonic,
@@ -85,7 +86,7 @@ class Plugin(indigo.PluginBase):
                     if playerFrame:
                         indigo.devices[playerID].updateStateOnServer(key='playerStatus', value='Running')
                         if 'systemStatus' in playerFrame:
-                            self.logger.debug(u"%s: systemStatus received" % (player.device.name))
+                            self.logger.debug(u"%s: systemStatus frame received" % (player.device.name))
                             self.logger.threaddebug(u"%s: systemStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
                             stateList = [
                                 { 'key':'firmwareVers', 'value':playerFrame[u'systemStatus'][u'info'][0][u'v'] }
@@ -94,7 +95,7 @@ class Plugin(indigo.PluginBase):
                             indigo.devices[playerID].updateStatesOnServer(stateList)
                     
                         elif 'radioStatus' in playerFrame:
-                            self.logger.debug(u"%s: radioStatus received" % (player.device.name))
+                            self.logger.debug(u"%s: radioStatus frame received" % (player.device.name))
                             self.logger.threaddebug(u"%s: radioStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
                             stateList = [
                                 { 'key':'lowBandFreq',   
@@ -106,12 +107,16 @@ class Plugin(indigo.PluginBase):
                             indigo.devices[playerID].updateStatesOnServer(stateList)
                
                         elif 'parrotStatus' in playerFrame:
-                            self.logger.debug(u"%s: parrotStatus received" % (player.device.name))
+                            self.logger.debug(u"%s: parrotStatus frame received" % (player.device.name))
                             self.logger.threaddebug(u"%s: parrotStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
                
                         elif 'transcoderStatus' in playerFrame:
-                            self.logger.debug(u"%s: transcoderStatus received" % (player.device.name))
+                            self.logger.debug(u"%s: transcoderStatus frame received" % (player.device.name))
                             self.logger.threaddebug(u"%s: transcoderStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
+               
+                        elif 'alarmStatus' in playerFrame:
+                            self.logger.debug(u"%s: alarmStatus frame received" % (player.device.name))
+                            self.logger.threaddebug(u"%s: alarmStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
                
                         elif 'frame' in playerFrame:    # async frame.  Find a device to handle it
             
@@ -204,6 +209,7 @@ class Plugin(indigo.PluginBase):
             newProps["devVersCount"] = kCurDevVersCount
             if device.deviceTypeId in ['visonicDevice', 'oregonDevice']:
                 newProps["SupportsBatteryLevel"] = True
+                newProps["faultCode"] = None
                 self.logger.debug(u"%s: Updated device SupportsBatteryLevel = True" % (device.name))
                 
             
@@ -282,6 +288,34 @@ class Plugin(indigo.PluginBase):
         except:
             pass
             
+    def triggerStartProcessing(self, trigger):
+        self.logger.debug("Adding Trigger %s (%d)" % (trigger.name, trigger.id))
+        assert trigger.id not in self.triggers
+        self.triggers[trigger.id] = trigger
+
+    def triggerStopProcessing(self, trigger):
+        self.logger.debug("Removing Trigger %s (%d)" % (trigger.name, trigger.id))
+        assert trigger.id in self.triggers
+        del self.triggers[trigger.id]
+
+    def triggerCheck(self, device):
+        self.logger.debug("Checking Triggers for Device %s (%d)" % (device.name, device.id))
+
+        for triggerId, trigger in sorted(self.triggers.iteritems()):
+            self.logger.debug("\tChecking Trigger %s (%d), %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
+
+            if trigger.pluginProps["sensorID"] != str(device.id):
+                self.logger.debug("\t\tSkipping Trigger %s (%s), wrong device: %s" % (trigger.name, trigger.id, device.id))
+            else:
+                if trigger.pluginTypeId == "sensorFault":
+                    if device.states["faultCode"]:          # trigger if faultCode is not None
+                        indigo.trigger.execute(trigger)
+                    else:
+                        self.logger.debug("\tNo Match for Trigger %s (%d)" % (trigger.name, trigger.id))
+                else:
+                    self.logger.debug(
+                        "\tUnknown Trigger Type %s (%d), %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
+
     ########################################
     # Control Action callbacks
     ########################################
@@ -427,6 +461,14 @@ class Plugin(indigo.PluginBase):
             self.logger.exception(u"sendCommandMenu error: %s" % str(e))
 
         return True
+
+    def pickSensor(self, filter=None, valuesDict=None, typeId=0, targetId=0):
+        retList = []
+        for device in indigo.devices.iter("self"):
+            if device.deviceTypeId != "RFPlayer":
+                retList.append((device.id, device.name))
+        retList.sort(key=lambda tup: tup[1])
+        return retList
 
     def pickPlayer(self, filter=None, valuesDict=None, typeId=0, targetId=0):
         retList = []

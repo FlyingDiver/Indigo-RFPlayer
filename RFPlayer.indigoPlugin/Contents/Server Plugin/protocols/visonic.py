@@ -72,9 +72,16 @@ class Visonic(object):
                 sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
             else:
                 sensor.updateStateOnServer('batteryLevel', '80', uiValue='80%')
-                        
-            sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
+            
             if sensorState == '0':
                 sensor.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
             else:
                 sensor.updateStateImageOnServer(indigo.kStateImageSel.SensorOn)
+            sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
+
+            if int(sensorState) & 9:    # bits 0 and 3 are faults
+                sensor.updateStateOnServer('faultCode', sensorState)
+                indigo.activePlugin.triggerCheck(sensor)
+            else:
+                sensor.updateStateOnServer('faultCode', None)
+            

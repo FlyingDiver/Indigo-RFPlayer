@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<Events>
+    <SupportURL>http://forums.indigodomo.com/viewtopic.php?f=214</SupportURL>
+    <Event id="sensorFault">
+        <Name>Sensor Fault Condition</Name>
+        <ConfigUI>
+            <Field id="sensorID" type="menu">
+                <Label>Select Sensor:</Label>
+                <List class="self" filter="" method="pickSensor"  dynamicReload="true"/>
+            </Field>            
+        </ConfigUI>
+    </Event>
+</Events>

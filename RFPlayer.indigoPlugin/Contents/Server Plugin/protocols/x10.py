@@ -74,10 +74,8 @@ class X10(object):
         return True
 
     def turnOn(self, rfPlayer):
-        self.logger.debug("Turn On for %s" % (self.device.address))
         
-        cmdString = "ON %s X10" % (self.device.address[4:])
-        
+        cmdString = "ON %s X10" % (self.device.address[4:])        
         try:
             self.logger.debug(u"X10 turnOn command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
@@ -88,10 +86,8 @@ class X10(object):
             return True
 
     def turnOff(self, rfPlayer):
-        self.logger.debug("Turn Off for %s" % (self.device.address))
         
-        cmdString = "OFF %s X10" % (self.device.address[4:])
-        
+        cmdString = "OFF %s X10" % (self.device.address[4:])        
         try:
             self.logger.debug(u"X10 turnOff command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)

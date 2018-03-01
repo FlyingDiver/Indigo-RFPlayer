@@ -73,10 +73,8 @@ class Parrot(object):
         return True
 
     def turnOn(self, rfPlayer):
-        self.logger.debug("Turn On for %s" % (self.device.address))
         
-        cmdString = "ON %s PARROT" % (self.device.address[7:])
-        
+        cmdString = "ON %s PARROT" % (self.device.address[7:])        
         try:
             self.logger.debug(u"Parrot turnOn command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
@@ -87,10 +85,8 @@ class Parrot(object):
             return True
 
     def turnOff(self, rfPlayer):
-        self.logger.debug("Turn Off for %s" % (self.device.address))
         
-        cmdString = "OFF %s PARROT" % (self.device.address[7:])
-        
+        cmdString = "OFF %s PARROT" % (self.device.address[7:])        
         try:
             self.logger.debug(u"Parrot turnOff command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)

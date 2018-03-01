@@ -101,9 +101,12 @@ class RFPlayer(object):
             self.logger.info(data[5:])
             return
         
+        if data[0:5] == "ZIA55":            # Trace log event
+            self.logger.debug("!! Trace" + data[5:])
+            return
+        
         try:                                # everything else should be JSON
             reply = json.loads(data[5:])
-#            self.logger.threaddebug("%s: Frame Received:\n%s" % (self.device.name, json.dumps(reply, indent=4, sort_keys=True)))
             return reply
         except:
             self.logger.debug(u"json decode failure:\n" + str(data))        

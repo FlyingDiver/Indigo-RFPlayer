@@ -70,3 +70,30 @@ class RTS(object):
             self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
 
+    def requestStatus(self, rfPlayer):
+        self.logger.debug("Request Status for %s" % (self.device.address))        
+        return True
+
+    def turnOn(self, rfPlayer):
+        
+        cmdString = "ON %s RTS" % (self.device.address[4:])        
+        try:
+            self.logger.debug(u"RTS turnOn command '" + cmdString + "' to " + self.player.name)
+            rfPlayer.sendRawCommand(cmdString)
+        except Exception, e:
+            self.logger.exception(u"RTS turnOn command error: %s" % str(e))
+            return False
+        else:
+            return True
+
+    def turnOff(self, rfPlayer):
+        
+        cmdString = "OFF %s RTS" % (self.device.address[4:])        
+        try:
+            self.logger.debug(u"RTS turnOff command '" + cmdString + "' to " + self.player.name)
+            rfPlayer.sendRawCommand(cmdString)
+        except Exception, e:
+            self.logger.exception(u"RTS turnOff command error: %s" % str(e))
+            return False
+        else:
+            return True

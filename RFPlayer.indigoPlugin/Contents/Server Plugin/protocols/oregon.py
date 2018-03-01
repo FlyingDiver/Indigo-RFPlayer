@@ -54,6 +54,7 @@ class Oregon(object):
             newProps = device.pluginProps
             newProps["configDone"] = True
             newProps["valueType"] = "temperature"
+            newProps["SupportsBatteryLevel"] = True
             device.replacePluginPropsOnServer(newProps)
 
             self.logger.info(u"Configured Oregon Scientific Temperature Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
@@ -68,6 +69,7 @@ class Oregon(object):
             newProps = device.pluginProps
             newProps["configDone"] = True
             newProps["valueType"] = "speed"
+            newProps["SupportsBatteryLevel"] = True
             device.replacePluginPropsOnServer(newProps)
 
             self.logger.info(u"Configured Oregon Scientific Wind Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
@@ -82,6 +84,7 @@ class Oregon(object):
             newProps = device.pluginProps
             newProps["configDone"] = True
             newProps["valueType"] = "rain"
+            newProps["SupportsBatteryLevel"] = True
             device.replacePluginPropsOnServer(newProps)
         
             self.logger.info(u"Configured Oregon Scientific Rain Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
@@ -96,6 +99,7 @@ class Oregon(object):
             newProps = device.pluginProps
             newProps["configDone"] = True
             newProps["valueType"] = "uv"
+            newProps["SupportsBatteryLevel"] = True
             device.replacePluginPropsOnServer(newProps)
 
             self.logger.info(u"Configured Oregon Scientific UV Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
@@ -214,10 +218,10 @@ class Oregon(object):
                 return
         
             # only update battery on root device of group
-            
+
             groupList = indigo.device.getGroupList(deviceId)
-            rootDevice = indigo.devices[groupList[0]]
-            if deviceId == rootDevice:        
+#            if deviceId == groupList[0]:        
+            if True:        
                 qualifier = frameData['infos']['qualifier']
                 if int(qualifier) & 1:
                     sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
@@ -246,7 +250,9 @@ class Oregon(object):
         
                 else:
                     self.logger.debug(u"Unknown valueType: %s" % (valueType))
-                    return
-                        
-                sensor.updateStateOnServer('sensorValue', value, uiValue=valueString)
+            
+            sensor.updateStateOnServer('sensorValue', value, uiValue=valueString)
+
+            if False:   # need an actual fault condition
+                indigo.activePlugin.triggerCheck(sensor)
 

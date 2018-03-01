@@ -57,3 +57,24 @@ class X2D(object):
 
         self.logger.threaddebug(u"%s: X2D frame received: %s" % (player.device.name, devAddress))
 
+        deviceList = knownDevices[devAddress]['devices']
+        for deviceId in deviceList:
+            try:
+                sensor = indigo.devices[deviceId]
+            except:
+                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+                continue
+
+            sensorState = frameData['infos']['qualifier']
+            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))
+            if int(sensorState) & 4:
+                sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
+            else:
+                sensor.updateStateOnServer('batteryLevel', '80', uiValue='80%')
+            
+            if int(sensorState) & 3:    # bits 0 and 1 are faults
+                sensor.updateStateOnServer('faultCode', sensorState)
+                indigo.activePlugin.triggerCheck(sensor)
+            else:
+                sensor.updateStateOnServer('faultCode', None)
+            

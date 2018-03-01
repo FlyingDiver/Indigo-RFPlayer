@@ -64,6 +64,13 @@
                 <List class="self" filter="6" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
    <Device type="sensor" id="oregonDevice">
         <Name>Oregon Scientific Device</Name>
@@ -74,13 +81,19 @@
 			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
 			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
 			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
-			<Field id="SupportsBatteryLevel" type="checkbox" defaultValue="true" hidden="true" />
 
             <Field id="address" type="menu">
                 <Label>Device:</Label>
                 <List class="self" filter="5" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
    <Device type="relay" id="parrotDevice">
         <Name>Parrot Device</Name>
@@ -135,6 +148,13 @@
                 </List>
             </Field>			
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
    <Device type="sensor" id="rtsDevice">
         <Name>RTS Device</Name>
@@ -151,6 +171,13 @@
                 <List class="self" filter="9" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
    <Device type="sensor" id="visonicDevice">
         <Name>Visonic Sensor</Name>
@@ -168,6 +195,13 @@
                 <List class="self" filter="2" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
    <Device type="relay" id="x10Device" deviceFilter="self.RFPlayer">
         <Name>X10 Device</Name>
@@ -234,5 +268,12 @@
                 </List>
             </Field>			
         </ConfigUI>
+        <States>
+            <State id="faultCode">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Fault Code</TriggerLabel>
+                <ControlPageLabel>Fault Code</ControlPageLabel>
+            </State>
+        </States>
     </Device>		
 </Devices>
