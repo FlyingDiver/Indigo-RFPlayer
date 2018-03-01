@@ -13,7 +13,7 @@ from ghpu import GitHubPluginUpdater
 from RFPlayer import RFPlayer
 from protocols import Blyss, Chacon, Domia, KD101, Oregon, Owl, Parrot, RTS, Visonic, X2D, X10
 
-kCurDevVersCount = 2        # current version of plugin devices
+kCurDevVersCount = 1        # current version of plugin devices
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -205,12 +205,13 @@ class Plugin(indigo.PluginBase):
             self.logger.threaddebug(u"%s: Device is current version: %d" % (device.name ,instanceVers))
         elif instanceVers < kCurDevVersCount:
             newProps = device.pluginProps
-
             newProps["devVersCount"] = kCurDevVersCount
+            newProps["faultCode"] = None
             if device.deviceTypeId in ['visonicDevice', 'oregonDevice']:
-                newProps["SupportsBatteryLevel"] = True
-                newProps["faultCode"] = None
-                self.logger.debug(u"%s: Updated device SupportsBatteryLevel = True" % (device.name))
+                groupList = indigo.device.getGroupList(device.id)
+                if device.id == groupList[0]:        
+                    newProps["SupportsBatteryLevel"] = True
+                    self.logger.debug(u"%s: Updated device SupportsBatteryLevel = True" % (device.name))
                 
             
             device.replacePluginPropsOnServer(newProps)

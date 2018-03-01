@@ -220,8 +220,7 @@ class Oregon(object):
             # only update battery on root device of group
 
             groupList = indigo.device.getGroupList(deviceId)
-#            if deviceId == groupList[0]:        
-            if True:        
+            if deviceId == groupList[0]:        
                 qualifier = frameData['infos']['qualifier']
                 if int(qualifier) & 1:
                     sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
