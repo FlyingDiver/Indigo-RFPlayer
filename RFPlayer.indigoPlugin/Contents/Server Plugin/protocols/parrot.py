@@ -22,7 +22,8 @@ class Parrot(object):
                 "protocol": "11", 
                 "description": device.address,
                 "subType": 'None',
-                "playerId": int(device.pluginProps["targetDevice"])
+                "playerId": int(device.pluginProps["targetDevice"]),
+                "frameData": frameData
             }
 
         devAddress = device.pluginProps['address']
@@ -49,11 +50,17 @@ class Parrot(object):
 
         self.logger.info(u"Configured Parrot device '%s' (%s) @ %s" % (device.name, device.id, devAddress))
 
-    def handler(self, player, frameData, knownDevices):
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
+    def handler(self, frameData, knownDevices):
 
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"%s: Parrot frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"Parrot frame received: %s" % (devAddress))
 
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:

@@ -17,7 +17,8 @@ class Oregon(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id_PHYMeaning'],
                 "subType": frameData['infos']['id_PHY'],
-                "playerId": playerDevice.id
+                "playerId": playerDevice.id,
+                "frameData": frameData
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -194,13 +195,18 @@ class Oregon(object):
             knownDevices.setitem_in_item(devAddress, 'devices', devices)
             knownDevices.setitem_in_item(devAddress, 'status', "Active")
 
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
 
-
-    def handler(self, player, frameData, knownDevices):
+    def handler(self, frameData, knownDevices):
 
         devAddress = "OREGON-" + frameData['infos']['adr_channel']
 
-        self.logger.threaddebug(u"%s: Oregon frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"Oregon frame received: %s" % (devAddress))
          
         useFarenheit = indigo.activePlugin.pluginPrefs.get('useFarenheit', True)
            

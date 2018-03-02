@@ -17,7 +17,8 @@ class Blyss(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id'],
                 "subType": 'None',
-                "playerId": playerDevice.id
+                "playerId": playerDevice.id,
+                "frameData": frameData
            }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -51,9 +52,15 @@ class Blyss(object):
 
         self.logger.info(u"Configured Blyss device '%s' (%s) @ %s" % (device.name, device.id, address))
        
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
 
-    def handler(self, player, frameData, knownDevices):
+    def handler(self, frameData, knownDevices):
 
         devAddress = "BLYSS-" + frameData['infos']['id']
-        self.logger.threaddebug(u"%s: Sensor Blyss received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"Blyss frame received: %s" % (devAddress))
 

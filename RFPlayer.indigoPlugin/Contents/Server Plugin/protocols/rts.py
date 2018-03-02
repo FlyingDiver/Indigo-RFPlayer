@@ -17,7 +17,8 @@ class RTS(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['subTypeMeaning'],
                 "subType": frameData['infos']['subType'],
-                "playerId": playerDevice.id
+                "playerId": playerDevice.id,
+                "frameData": frameData
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -51,12 +52,18 @@ class RTS(object):
 
         self.logger.info(u"Configured RTS Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
 
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
 
-    def handler(self, player, frameData, knownDevices):
+    def handler(self, frameData, knownDevices):
 
         devAddress = "RTS-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: RTS frame received: %s" % (player.device.name, devAddress))            
+        self.logger.threaddebug(u"RTS frame received: %s" % (devAddress))            
             
         deviceList = self.knownDevices[devAddress]['devices']
         for deviceId in deviceList:

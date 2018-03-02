@@ -309,7 +309,11 @@ class GitHubPluginUpdater(object):
 
         self.logger.debug('Downloading zip file: %s' % zipball)
 
-        zipdata = urlopen(zipball).read()
+        # zipdata = urlopen(zipball).read()
+        f = subprocess.Popen(["/usr/bin/curl", "-L",  zipball], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        zipdata, err = f.communicate()
+        self.logger.debug(u'HTTP Err result:'+unicode(err) )
+        self.logger.debug(u'ReturnCode:{0}'.format(unicode(f.returncode)))
         zipfile = ZipFile(StringIO(zipdata))
 
         self.logger.debug('Verifying zip file (%d bytes)...' % len(zipdata))
@@ -317,7 +321,7 @@ class GitHubPluginUpdater(object):
             raise Exception('Download corrupted')
 
         return zipfile
-
+        
 ################################################################################
 # maps the standard version string as a tuple for comparrison
 def ver(vstr): return tuple(map(int, (vstr.split('.'))))

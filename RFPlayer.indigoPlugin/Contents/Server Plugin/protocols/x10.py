@@ -23,7 +23,8 @@ class X10(object):
                 "protocol": "1", 
                 "subType": deviceType,
                 "description": device.address,
-                "playerId": int(device.pluginProps["targetDevice"])
+                "playerId": int(device.pluginProps["targetDevice"]),
+                "frameData": frameData
           }
 
         devAddress = device.pluginProps['address']
@@ -50,12 +51,18 @@ class X10(object):
 
         self.logger.info(u"Configured X10 Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
 
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
 
-    def handler(self, player, frameData, knownDevices):
+    def handler(self, frameData, knownDevices):
 
         devAddress = "X10-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"%s: X10 frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"X10 frame received: %s" % (devAddress))
             
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:

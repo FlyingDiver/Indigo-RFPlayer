@@ -17,7 +17,8 @@ class Chacon(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id'],
                 "subType": 'None',
-                "playerId": playerDevice.id
+                "playerId": playerDevice.id,
+                "frameData": frameData
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -51,8 +52,15 @@ class Chacon(object):
 
         self.logger.info(u"Configured Chacon device '%s' (%s) @ %s" % (device.name, device.id, address))
 
-    def handler(self, player, frameData, knownDevices):
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
+
+    def handler(self, frameData, knownDevices):
 
         devAddress = "CHACON-" + frameData['infos']['id']
-        self.logger.threaddebug(u"%s: Chacon frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"Chacon frame received: %s" % (devAddress))
 

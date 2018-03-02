@@ -17,7 +17,8 @@ class Owl(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id'],
                 "subType": 'None',
-                "playerId": playerDevice.id
+                "playerId": playerDevice.id,
+                "frameData": frameData
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -51,9 +52,16 @@ class Owl(object):
 
         self.logger.info(u"Configured Owl device '%s' (%s) @ %s" % (device.name, device.id, address))
 
-    def handler(self, player, frameData, knownDevices):
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
+
+    def handler(self, frameData, knownDevices):
 
         devAddress = "OWL-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: Owl frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"Owl frame received: %s" % (devAddress))
 

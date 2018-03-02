@@ -126,7 +126,7 @@ class Plugin(indigo.PluginBase):
                                     devAddress = self.protocolClasses[protocol].frameCheck(player.device, playerFrame['frame'], self.knownDevices)
                                     
                                     if devAddress in self.sensorDevices:
-                                        self.sensorDevices[devAddress].handler(player, playerFrame['frame'], self.knownDevices)
+                                        self.sensorDevices[devAddress].handler(playerFrame['frame'], self.knownDevices)
 
                                     else:
                                         self.logger.threaddebug("%s: Frame from %s, known and not configured.  Ignoring." % (player.device.name, devAddress))
@@ -300,21 +300,22 @@ class Plugin(indigo.PluginBase):
         del self.triggers[trigger.id]
 
     def triggerCheck(self, device):
-        self.logger.debug("Checking Triggers for Device %s (%d)" % (device.name, device.id))
+        self.logger.threaddebug("Checking Triggers for Device %s (%d)" % (device.name, device.id))
 
         for triggerId, trigger in sorted(self.triggers.iteritems()):
-            self.logger.debug("\tChecking Trigger %s (%d), %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
+            self.logger.threaddebug("\tChecking Trigger %s (%d), %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
 
             if trigger.pluginProps["sensorID"] != str(device.id):
-                self.logger.debug("\t\tSkipping Trigger %s (%s), wrong device: %s" % (trigger.name, trigger.id, device.id))
+                self.logger.threaddebug("\t\tSkipping Trigger %s (%s), wrong device: %s" % (trigger.name, trigger.id, device.id))
             else:
                 if trigger.pluginTypeId == "sensorFault":
                     if device.states["faultCode"]:          # trigger if faultCode is not None
+                        self.logger.debug("Executing Trigger %s (%s)" % (trigger.name, trigger.id))
                         indigo.trigger.execute(trigger)
                     else:
                         self.logger.debug("\tNo Match for Trigger %s (%d)" % (trigger.name, trigger.id))
                 else:
-                    self.logger.debug(
+                    self.logger.threaddebug(
                         "\tUnknown Trigger Type %s (%d), %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
 
     ########################################

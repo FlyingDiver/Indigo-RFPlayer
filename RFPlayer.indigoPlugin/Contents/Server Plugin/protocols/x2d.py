@@ -17,7 +17,8 @@ class X2D(object):
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id'],
                 "playerId": playerDevice.id,
-                "subType": 'None'
+                "subType": 'None',
+                "frameData": frameData
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
@@ -51,11 +52,18 @@ class X2D(object):
 
         self.logger.info(u"Configured X2D device '%s' (%s) @ %s" % (device.name, device.id, address))
 
-    def handler(self, player, frameData, knownDevices):
+        # all done creating devices.  Use the cached data to set initial data
+        
+        frameData = knownDevices[devAddress].get('frameData', None)
+        if (frameData):
+            self.handler(frameData, knownDevices)
+        
+
+    def handler(self, frameData, knownDevices):
 
         devAddress = "X2D-" + frameData['infos']['id']
 
-        self.logger.threaddebug(u"%s: X2D frame received: %s" % (player.device.name, devAddress))
+        self.logger.threaddebug(u"X2D frame received: %s" % (devAddress))
 
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
