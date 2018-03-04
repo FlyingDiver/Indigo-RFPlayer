@@ -23,7 +23,7 @@ class Parrot(object):
                 "description": device.address,
                 "subType": 'None',
                 "playerId": int(device.pluginProps["targetDevice"]),
-                "frameData": frameData
+                "frameData": None
             }
 
         devAddress = device.pluginProps['address']

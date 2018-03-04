@@ -24,7 +24,7 @@ class X10(object):
                 "subType": deviceType,
                 "description": device.address,
                 "playerId": int(device.pluginProps["targetDevice"]),
-                "frameData": frameData
+                "frameData": None
           }
 
         devAddress = device.pluginProps['address']
