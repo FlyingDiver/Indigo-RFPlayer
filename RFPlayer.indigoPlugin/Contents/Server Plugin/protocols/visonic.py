@@ -48,6 +48,7 @@ class Visonic(object):
 
         newProps = device.pluginProps
         newProps["configDone"] = True
+        newProps["SupportsBatteryLevel"] = True
         device.replacePluginPropsOnServer(newProps)
 
         self.logger.info(u"Configured Visonic Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))

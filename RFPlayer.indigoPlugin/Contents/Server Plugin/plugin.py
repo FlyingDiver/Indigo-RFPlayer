@@ -52,20 +52,6 @@ class Plugin(indigo.PluginBase):
             "11" : Parrot
         }
         
-        self.deviceTypeClasses = {
-            "x10Device"     : X10,
-            "visonicDevice" : Visonic,
-            "blyssDevice"   : Blyss,
-            "chaconDevice"  : Chacon,
-            "oregonDevice"  : Oregon,
-            "domiaDevice"   : Domia,
-            "owlDevice"     : Owl,
-            "x2dDevice"     : X2D,
-            "rtsDevice"     : RTS,
-            "kd101Device"   : KD101,
-            "parrotDevice"  : Parrot
-        }
-        
         self.updater = GitHubPluginUpdater(self)
         self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', "24")) * 60.0 * 60.0
         self.logger.debug(u"RFPlayer updateFrequency = " + str(self.updateFrequency))
@@ -200,26 +186,21 @@ class Plugin(indigo.PluginBase):
       
     def deviceStartComm(self, device):
 
+        self.logger.debug(u"%s: Starting Device" % device.name)
+
         instanceVers = int(device.pluginProps.get('devVersCount', 0))
         if instanceVers == kCurDevVersCount:
             self.logger.threaddebug(u"%s: Device is current version: %d" % (device.name ,instanceVers))
         elif instanceVers < kCurDevVersCount:
             newProps = device.pluginProps
             newProps["devVersCount"] = kCurDevVersCount
-            newProps["faultCode"] = None
-            if device.deviceTypeId in ['visonicDevice', 'oregonDevice']:
-                groupList = indigo.device.getGroupList(device.id)
-                if device.id == groupList[0]:        
-                    newProps["SupportsBatteryLevel"] = True
-                    self.logger.debug(u"%s: Updated device SupportsBatteryLevel = True" % (device.name))
-                
-            
             device.replacePluginPropsOnServer(newProps)
-            device.stateListOrDisplayStateIdChanged()
             self.logger.debug(u"%s: Updated device version: %d -> %d" % (device.name,  instanceVers, kCurDevVersCount))
         else:
             self.logger.warning(u"%s: Invalid device version: %d" % (device.name, instanceVers))
         
+        self.logger.threaddebug(u"%s: Starting Device: %s" % (device.name , unicode(device)))
+
         if device.deviceTypeId == "RFPlayer":
             serialPort = device.pluginProps.get(u'serialPort', "")
             baudRate = int(device.pluginProps.get(u'baudRate', 0))
@@ -230,7 +211,8 @@ class Plugin(indigo.PluginBase):
         
         else:
             address = device.pluginProps.get(u'address', "")
-            self.sensorDevices[address] = (self.deviceTypeClasses[device.deviceTypeId])(device, self.knownDevices)
+            protocol = self.knownDevices[address]['protocol']
+            self.sensorDevices[address] = (self.protocolClasses[protocol])(device, self.knownDevices)
         
         self.logger.debug(u"%s: deviceStartComm complete, sensorDevices[] =" % (device.name))
         for key, sensor in self.sensorDevices.iteritems():
@@ -238,20 +220,18 @@ class Plugin(indigo.PluginBase):
             
     
     def deviceStopComm(self, device):
+        self.logger.debug(u"%s: Stopping Device" % device.name)
         if device.deviceTypeId == "RFPlayer":
-            self.logger.debug(u"%s: Stopping Interface device" % device.name)
             device.updateStateOnServer(key='playerStatus', value='Stopping')
             player = self.players[device.id]
             player.stop()
             del self.players[device.id]
         else:
-            self.logger.debug(u"%s: Stopping sensor device" % device.name)
             address = device.pluginProps.get(u'address', "")
             try:
                 del self.sensorDevices[address]
             except:
                 pass
-#                self.logger.error(u"%s: Unregistered sensor device @ %s" % (device.name, address))
             
 
     ########################################
@@ -269,7 +249,7 @@ class Plugin(indigo.PluginBase):
     def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
         retList =[]
         for address, data in sorted(self.knownDevices.iteritems()):
-            if data['status'] == 'Available' and data['protocol'] == filter:
+            if data['status'] == 'Available':
                 retList.append((address, "%s: %s" % (address, data['description'])))
                
         retList.sort(key=lambda tup: tup[1])

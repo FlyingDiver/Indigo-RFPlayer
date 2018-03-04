@@ -2,7 +2,7 @@
 <Events>
     <SupportURL>http://forums.indigodomo.com/viewtopic.php?f=214</SupportURL>
     <Event id="sensorFault">
-        <Name>Sensor Fault Condition</Name>
+        <Name>Sensor Fault</Name>
         <ConfigUI>
             <Field id="sensorID" type="menu">
                 <Label>Select Sensor:</Label>
