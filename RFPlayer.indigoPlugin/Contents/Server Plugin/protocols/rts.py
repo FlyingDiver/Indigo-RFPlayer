@@ -83,7 +83,7 @@ class RTS(object):
 
     def turnOn(self, rfPlayer):
         
-        cmdString = "ON %s RTS" % (self.device.address[4:])        
+        cmdString = "on rts %s qualifier 0" % (self.device.address[4:])        
         try:
             self.logger.debug(u"RTS turnOn command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
@@ -95,12 +95,24 @@ class RTS(object):
 
     def turnOff(self, rfPlayer):
         
-        cmdString = "OFF %s RTS" % (self.device.address[4:])        
+        cmdString = "off rts %s qualifier 0" % (self.device.address[4:])        
         try:
             self.logger.debug(u"RTS turnOff command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
         except Exception, e:
             self.logger.exception(u"RTS turnOff command error: %s" % str(e))
+            return False
+        else:
+            return True
+
+    def sendMyCommand(self, rfPlayer):
+        
+        cmdString = "off rts %s qualifier 4" % (self.device.address[4:])        
+        try:
+            self.logger.debug(u"RTS My command '" + cmdString + "' to " + self.player.name)
+            rfPlayer.sendRawCommand(cmdString)
+        except Exception, e:
+            self.logger.exception(u"RTS My command error: %s" % str(e))
             return False
         else:
             return True

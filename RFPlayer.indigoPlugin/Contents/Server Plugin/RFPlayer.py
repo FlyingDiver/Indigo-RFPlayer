@@ -60,7 +60,6 @@ class RFPlayer(object):
             self.port.close()
         self.port = None  
        
-
     def poll(self):
     
         reply = None
@@ -76,7 +75,7 @@ class RFPlayer(object):
                     data += self.port.read().decode('ascii')
                 reply = self.handle_data(data.rstrip())
         except Exception, e:
-            self.logger.error(u"Serial Read error: %s" % str(e))
+            self.logger.error(u"RFPlayer Serial Read error: %s" % str(e))
             self.connected = False
         
         # now send any queued up messages
@@ -88,6 +87,8 @@ class RFPlayer(object):
                 self.port.write(command)
             except Exception, e:
                 self.logger.exception(u"Serial Write error: %s" % str(e))
+                self.connected = False
+                
             
         return reply
    

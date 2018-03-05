@@ -8,12 +8,10 @@ from datetime import datetime
 import json
 import logging
 
-from ghpu import GitHubPluginUpdater
-
 from RFPlayer import RFPlayer
 from protocols import Blyss, Chacon, Domia, KD101, Oregon, Owl, Parrot, RTS, Visonic, X2D, X10
 
-kCurDevVersCount = 1        # current version of plugin devices
+kCurDevVersCount = 2        # current version of plugin devices
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -52,11 +50,6 @@ class Plugin(indigo.PluginBase):
             "11" : Parrot
         }
         
-        self.updater = GitHubPluginUpdater(self)
-        self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', "24")) * 60.0 * 60.0
-        self.logger.debug(u"RFPlayer updateFrequency = " + str(self.updateFrequency))
-        self.next_update_check = time.time()
-
     def shutdown(self):
         indigo.activePlugin.pluginPrefs[u"knownDevices"] = self.knownDevices
         self.logger.info(u"Shutting down RFPlayer")
@@ -68,7 +61,9 @@ class Plugin(indigo.PluginBase):
             while True:
 
                 for playerID, player in self.players.items():
-                    playerFrame = player.poll()
+                    if player.connected:
+                        playerFrame = player.poll()     
+                    
                     if playerFrame:
                         indigo.devices[playerID].updateStateOnServer(key='playerStatus', value='Running')
                         if 'systemStatus' in playerFrame:
@@ -127,10 +122,6 @@ class Plugin(indigo.PluginBase):
                         else:
                             self.logger.error(u"%s: Unknown playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
     
-                if (self.updateFrequency > 0.0) and (time.time() > self.next_update_check):
-                    self.next_update_check = time.time() + self.updateFrequency
-                    self.updater.checkForUpdate()
-
                 self.sleep(0.1)
 
         except self.stopThread:
@@ -151,10 +142,6 @@ class Plugin(indigo.PluginBase):
             self.logLevel = logging.INFO
         self.indigo_log_handler.setLevel(self.logLevel)
 
-        updateFrequency = int(valuesDict['updateFrequency'])
-        if (updateFrequency < 0) or (updateFrequency > 24):
-            errorDict['updateFrequency'] = u"Update frequency is invalid - enter a valid number (between 0 and 24)"
-
         if len(errorDict) > 0:
             return (False, valuesDict, errorDict)
         return (True, valuesDict)
@@ -167,9 +154,6 @@ class Plugin(indigo.PluginBase):
                 self.logLevel = logging.INFO
             self.indigo_log_handler.setLevel(self.logLevel)
             self.logger.debug(u"RFPlayer logLevel = " + str(self.logLevel))
-
-            self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', "24")) * 60.0 * 60.0
-            self.next_update_check = time.time() + self.updateFrequency
 
 
     ########################################
@@ -246,10 +230,23 @@ class Plugin(indigo.PluginBase):
     def closedDeviceConfigUi(self, valuesDict, userCancelled, typeId, devId):
         return
         
+    # return a list of all "Available" devices (not associated with an Indigo device)
+    
     def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
         retList =[]
         for address, data in sorted(self.knownDevices.iteritems()):
             if data['status'] == 'Available':
+                retList.append((address, "%s: %s" % (address, data['description'])))
+               
+        retList.sort(key=lambda tup: tup[1])
+        return retList
+
+    # return a list of all "Active" devices of a specific type
+
+    def activeDeviceList(self, filter="", valuesDict=None, typeId="discoveredDevice", targetId=0):
+        retList =[]
+        for address, data in sorted(self.knownDevices.iteritems()):
+            if data['status'] == 'Active' and (filter in address) :
                 retList.append((address, "%s: %s" % (address, data['description'])))
                
         retList.sort(key=lambda tup: tup[1])
@@ -354,6 +351,17 @@ class Plugin(indigo.PluginBase):
         except Exception, e:
             self.logger.exception(u"sendCommandAction error: %s" % str(e))
 
+    def sendRTSMyCommand(self, pluginAction, sensorDevice, callerWaitingForResult):
+
+        sensorDevice = pluginAction.props["device"]
+        sensor = self.sensorDevices[sensorDevice]
+        player = self.players[sensor.player.id]
+        try:
+            self.logger.debug(u"sendRTSMyCommand to %s via %s" % (sensorDevice, player.device.name))
+            player.sendMyCommand()
+        except Exception, e:
+            self.logger.exception(u"sendRTSMyCommand error: %s" % str(e))
+
     def sendX10CommandAction(self, pluginAction, playerDevice, callerWaitingForResult):
 
         player = self.players[playerDevice.id]
@@ -400,15 +408,6 @@ class Plugin(indigo.PluginBase):
     # doesn't do anything, just needed to force other menus to dynamically refresh
     def menuChanged(self, valuesDict, typeId, devId):
         return valuesDict
-
-    def checkForUpdates(self):
-        self.updater.checkForUpdate()
-
-    def updatePlugin(self):
-        self.updater.update()
-
-    def forceUpdate(self):
-        self.updater.update(currentVersion='0.0.0')
 
     def dumpKnownDevices(self):
         self.logger.info(u"Known device list:\n" + str(self.knownDevices))

@@ -14,6 +14,16 @@
 			</Field>
 		</ConfigUI>
 	</Action>
+	<Action id="sendRTSMyCommand">
+		<Name>Send RTS My Command</Name>
+		<CallbackMethod>sendRTSMyCommand</CallbackMethod>
+		<ConfigUI>
+            <Field id="device" type="menu">
+                <Label>RTS Device:</Label>
+                <List class="self" filter="RTS" method="activeDeviceList" dynamicReload="true"/>
+            </Field>			
+		</ConfigUI>
+	</Action>
 	<Action id="sendX10Command" deviceFilter="self.RFPlayer">
 		<Name>Send X10 Command</Name>
 		<CallbackMethod>sendX10CommandAction</CallbackMethod>
