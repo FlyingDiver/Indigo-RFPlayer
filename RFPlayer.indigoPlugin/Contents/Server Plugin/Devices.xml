@@ -3,6 +3,7 @@
     <Device type="custom" id="RFPlayer">
 		<Name>RFPlayer Dongle</Name>
 		<ConfigUI>	
+ 		    <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="playerModel" type="menu" defaultValue="US">
                 <Label>RFPlayer Model:</Label>
                 <List>

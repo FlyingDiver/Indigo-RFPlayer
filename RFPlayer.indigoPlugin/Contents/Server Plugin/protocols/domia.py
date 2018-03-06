@@ -15,7 +15,7 @@ class Domia(object):
                 "status": "Available", 
                 "devices" : indigo.List(),
                 "protocol": frameData['header']['protocol'], 
-                "description": frameData['infos']['subTypeMeaning'],
+                "description": frameData['infos']['idMeaning'],
                 "subType": frameData['infos']['subType'],
                 "playerId": playerDevice.id,
                 "frameData": frameData

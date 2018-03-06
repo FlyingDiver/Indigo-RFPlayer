@@ -66,6 +66,7 @@ class Plugin(indigo.PluginBase):
                     
                     if playerFrame:
                         indigo.devices[playerID].updateStateOnServer(key='playerStatus', value='Running')
+                        indigo.devices[playerID].updateStateImageOnServer(indigo.kStateImageSel.SensorOn)
                         if 'systemStatus' in playerFrame:
                             self.logger.debug(u"%s: systemStatus frame received" % (player.device.name))
                             self.logger.threaddebug(u"%s: systemStatus playerFrame:\n%s" %  (player.device.name, json.dumps(playerFrame, indent=4, sort_keys=True)))      
@@ -192,7 +193,8 @@ class Plugin(indigo.PluginBase):
             player.start(serialPort, baudRate)
             self.players[device.id] = player
             device.updateStateOnServer(key='playerStatus', value='Starting')
-        
+            device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
+       
         else:
             address = device.pluginProps.get(u'address', "")
             protocol = self.knownDevices[address]['protocol']
@@ -207,6 +209,7 @@ class Plugin(indigo.PluginBase):
         self.logger.debug(u"%s: Stopping Device" % device.name)
         if device.deviceTypeId == "RFPlayer":
             device.updateStateOnServer(key='playerStatus', value='Stopping')
+            device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
             player = self.players[device.id]
             player.stop()
             del self.players[device.id]
