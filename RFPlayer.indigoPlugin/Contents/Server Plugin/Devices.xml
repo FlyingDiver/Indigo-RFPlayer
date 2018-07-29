@@ -51,7 +51,7 @@
         <UiDisplayStateId>playerStatus</UiDisplayStateId>
     </Device>		
    <Device type="sensor" id="discoveredDevice">
-        <Name>Discovered Sensors</Name>
+        <Name>Discovered Device</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
 

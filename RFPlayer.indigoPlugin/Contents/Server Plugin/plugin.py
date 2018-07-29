@@ -310,7 +310,7 @@ class Plugin(indigo.PluginBase):
             player = self.players[sensor.player.id]
             sensor.requestStatus(player)
 
-    def actionControlDevice(self, action, dev):
+    def actionControlSensor(self, action, dev):
         sensor = self.sensorDevices[dev.address]
         player = self.players[sensor.player.id]
         

@@ -47,6 +47,7 @@ class RTS(object):
         device.replaceOnServer()
 
         newProps = device.pluginProps
+        newProps["SupportsSensorValue"] = False
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
