@@ -59,6 +59,7 @@
 			<Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
 			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
 			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="IsDiscoverable" type="checkbox" defaultValue="true" hidden="true" />
 
             <Field id="address" type="menu">
                 <Label>Device:</Label>

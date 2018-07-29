@@ -40,7 +40,6 @@ class RFPlayer(object):
         
         self.port = self.plugin.openSerial("RFPlayer", serialPort, baudRate, timeout=0, writeTimeout=1, rtscts=True)
         if self.port is None:
-            self.logger.error(u"serial port could not be opened", isError=True)
             return False
         else:
             self.logger.info(u"Opened serial port %s at %d baud" % (serialPort, baudRate)) 

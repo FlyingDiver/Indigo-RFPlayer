@@ -190,11 +190,13 @@ class Plugin(indigo.PluginBase):
             serialPort = device.pluginProps.get(u'serialPort', "")
             baudRate = int(device.pluginProps.get(u'baudRate', 0))
             player = RFPlayer(self, device)
-            player.start(serialPort, baudRate)
-            self.players[device.id] = player
-            device.updateStateOnServer(key='playerStatus', value='Starting')
-            device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
-       
+            if player.start(serialPort, baudRate):
+                self.players[device.id] = player
+                device.updateStateOnServer(key='playerStatus', value='Starting')
+                device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
+            else:
+                device.updateStateOnServer(key='playerStatus', value='Error')
+                device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
         else:
             address = device.pluginProps.get(u'address', "")
             protocol = self.knownDevices[address]['protocol']
