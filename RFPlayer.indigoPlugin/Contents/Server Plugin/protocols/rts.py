@@ -30,7 +30,7 @@ class RTS(object):
         self.device = device
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting Oregon Scientific device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(u"%s: Starting RTS device (%s) @ %s" % (device.name, subType, devAddress))
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)

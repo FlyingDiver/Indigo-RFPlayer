@@ -321,7 +321,6 @@ class Plugin(indigo.PluginBase):
             else:
                 self.logger.error(u"send \"%s\" %s failed" % (dev.name, "On"))
 
-        ###### TURN OFF ######
         elif action.deviceAction == indigo.kDeviceAction.TurnOff:
             sendSuccess = sensor.turnOff(player)
             if sendSuccess:
@@ -329,7 +328,9 @@ class Plugin(indigo.PluginBase):
             else:
                 self.logger.error(u"send \"%s\" %s failed" % (dev.name, "Off"))
                 
-
+        else:
+            self.logger.warning(u"Unimplemented command in actionControlDevice: '{}' -> {}" % (dev.name, action.deviceAction))
+        
 
     ########################################
     # Plugin Actions object callbacks
