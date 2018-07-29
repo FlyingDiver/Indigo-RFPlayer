@@ -223,6 +223,20 @@ class Plugin(indigo.PluginBase):
                 pass
             
 
+    def deviceDeleted(self, device):
+        indigo.PluginBase.deviceDeleted(self, device)
+
+        if device.address:
+            try:
+                devices = self.knownDevices[device.address]['devices']
+                devices.remove(device.id)
+                self.knownDevices.setitem_in_item(device.address, 'devices', devices)
+                self.knownDevices.setitem_in_item(device.address, 'status', "Available")
+                self.logger.debug(u"deviceDeleted: %s (%s)" % (device.name, device.id))
+                self.logger.debug(u"Known device list:\n" + str(self.knownDevices))
+            except Exception, e:
+                self.logger.error(u"deviceDeleted error, {}: {}".format(device.name, str(e)))
+
     ########################################
     
     def validateDeviceConfigUi(self, valuesDict, typeId, devId):
@@ -258,18 +272,6 @@ class Plugin(indigo.PluginBase):
         return retList
 
     ########################################
-
-    def deviceDeleted(self, device):
-        indigo.PluginBase.deviceDeleted(self, device)
-
-        try:
-            devices = self.knownDevices[device.address]['devices']
-            devices.remove(device.id)
-            self.knownDevices.setitem_in_item(device.address, 'devices', devices)
-            self.knownDevices.setitem_in_item(device.address, 'status', "Available")
-            self.logger.debug(u"deviceDeleted: %s (%s)" % (device.name, device.id))
-        except:
-            pass
             
     def triggerStartProcessing(self, trigger):
         self.logger.debug("Adding Trigger %s (%d)" % (trigger.name, trigger.id))
