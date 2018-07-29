@@ -40,7 +40,6 @@ class RFPlayer(object):
         
         self.port = self.plugin.openSerial("RFPlayer", serialPort, baudRate, timeout=0, writeTimeout=1, rtscts=True)
         if self.port is None:
-            self.logger.error(u"serial port could not be opened", isError=True)
             return False
         else:
             self.logger.info(u"Opened serial port %s at %d baud" % (serialPort, baudRate)) 
@@ -60,7 +59,6 @@ class RFPlayer(object):
             self.port.close()
         self.port = None  
        
-
     def poll(self):
     
         reply = None
@@ -76,7 +74,7 @@ class RFPlayer(object):
                     data += self.port.read().decode('ascii')
                 reply = self.handle_data(data.rstrip())
         except Exception, e:
-            self.logger.error(u"Serial Read error: %s" % str(e))
+            self.logger.error(u"RFPlayer Serial Read error: %s" % str(e))
             self.connected = False
         
         # now send any queued up messages
@@ -88,6 +86,8 @@ class RFPlayer(object):
                 self.port.write(command)
             except Exception, e:
                 self.logger.exception(u"Serial Write error: %s" % str(e))
+                self.connected = False
+                
             
         return reply
    
@@ -101,9 +101,12 @@ class RFPlayer(object):
             self.logger.info(data[5:])
             return
         
+        if data[0:5] == "ZIA55":            # Trace log event
+            self.logger.debug("!! Trace" + data[5:])
+            return
+        
         try:                                # everything else should be JSON
             reply = json.loads(data[5:])
-            self.logger.threaddebug("%s: Frame Received:\n%s" % (self.device.name, json.dumps(reply, indent=4, sort_keys=True)))
             return reply
         except:
             self.logger.debug(u"json decode failure:\n" + str(data))        

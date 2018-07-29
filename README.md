@@ -2,7 +2,7 @@
 
 Plugin for the Indigo Home Automation system.
 
-This plugin communicates with the ZiBlue RFPLayer RF multiprotocol USB dongle.  The RFPlayer supports transmit and receive commands on the 433MHz and 866MHz bands.
+This plugin communicates with the ZiBlue RFPLayer RF multiprotocol USB dongle.  The RFPlayer supports transmit and receive commands on the 433MHz and 866MHz bands (EU) or 310/315MHz and 433MHz bands (US) .
 
 Supported devices include:
 	
@@ -24,7 +24,7 @@ See http://rfplayer.com/ for details.
 1. Optionally set the plugin configuration information for temperature units and plugin update check frequency.
 2. Create a new RFPlayer device of type "RFPlayer Dongle".  Select the serial port the dongle is connected to.  Select US or EU depending on your RFPlayer model (different frequency bands are used US vs EU).
 3. The dongle will start listening for sensor transmissions on the default RF bands.  The plugin will collect information about each new sensor that transmissions are received from.
-4. Create new RFPlayer devices for each sensor.  The known devices will be available in the popup list for each device type.
+4. Create new RFPlayer devices for each sensor.  The known devices will be available in the popup list for Discovered Devices.
 
 
 
