@@ -43,15 +43,16 @@ class RTS(object):
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
                 
-        device.name = address
+        device.name = devAddress
         device.replaceOnServer()
 
         newProps = device.pluginProps
         newProps["SupportsSensorValue"] = False
+        newProps["AllowOnStateChange"] = True
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured RTS Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
+        self.logger.info(u"Configured RTS Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
 
         # all done creating devices.  Use the cached data to set initial data
         
@@ -66,7 +67,7 @@ class RTS(object):
 
         self.logger.threaddebug(u"RTS frame received: %s" % (devAddress))            
             
-        deviceList = self.knownDevices[devAddress]['devices']
+        deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             try:
                 sensor = indigo.devices[deviceId]

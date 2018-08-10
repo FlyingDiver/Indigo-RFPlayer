@@ -316,14 +316,16 @@ class Plugin(indigo.PluginBase):
         sensor = self.sensorDevices[dev.address]
         player = self.players[sensor.player.id]
         
-        if action.deviceAction == indigo.kDeviceAction.TurnOn:
+        self.logger.debug(u"actionControlSensor: sensor = {}, player = {}, action = {}".format(sensor, player, action))
+        
+        if action.sensorAction == indigo.kDeviceAction.TurnOn:
             sendSuccess = sensor.turnOn(player)
             if sendSuccess:
                 dev.updateStateOnServer("onOffState", True)
             else:
                 self.logger.error(u"send \"%s\" %s failed" % (dev.name, "On"))
 
-        elif action.deviceAction == indigo.kDeviceAction.TurnOff:
+        elif action.sensorAction == indigo.kDeviceAction.TurnOff:
             sendSuccess = sensor.turnOff(player)
             if sendSuccess:
                 dev.updateStateOnServer("onOffState", False)
@@ -331,7 +333,7 @@ class Plugin(indigo.PluginBase):
                 self.logger.error(u"send \"%s\" %s failed" % (dev.name, "Off"))
                 
         else:
-            self.logger.warning(u"Unimplemented command in actionControlDevice: '{}' -> {}" % (dev.name, action.deviceAction))
+            self.logger.warning(u"Unimplemented command in actionControlSensor: '{}' -> {}" % (dev.name, action.sensorAction))
         
 
     ########################################
@@ -366,7 +368,7 @@ class Plugin(indigo.PluginBase):
         player = self.players[sensor.player.id]
         try:
             self.logger.debug(u"sendRTSMyCommand to %s via %s" % (sensorDevice, player.device.name))
-            player.sendMyCommand()
+            sensor.sendMyCommand(player)
         except Exception, e:
             self.logger.exception(u"sendRTSMyCommand error: %s" % str(e))
 
