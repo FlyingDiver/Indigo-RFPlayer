@@ -80,12 +80,12 @@ class RTS(object):
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
 
     def requestStatus(self, rfPlayer):
-        self.logger.debug("Request Status for %s" % (self.device.address))        
+        self.logger.debug("Ignored Request Status for %s" % (self.device.address))        
         return True
 
     def turnOn(self, rfPlayer):
         
-        cmdString = "on rts %s qualifier 0" % (self.device.address[4:])        
+        cmdString = "on rts ID %s qualifier 0" % (self.device.address[4:])        
         try:
             self.logger.debug(u"RTS turnOn command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
@@ -97,7 +97,7 @@ class RTS(object):
 
     def turnOff(self, rfPlayer):
         
-        cmdString = "off rts %s qualifier 0" % (self.device.address[4:])        
+        cmdString = "off rts ID %s qualifier 0" % (self.device.address[4:])        
         try:
             self.logger.debug(u"RTS turnOff command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
@@ -109,7 +109,7 @@ class RTS(object):
 
     def sendMyCommand(self, rfPlayer):
         
-        cmdString = "off rts %s qualifier 4" % (self.device.address[4:])        
+        cmdString = "off rts ID %s qualifier 4" % (self.device.address[4:])        
         try:
             self.logger.debug(u"RTS My command '" + cmdString + "' to " + self.player.name)
             rfPlayer.sendRawCommand(cmdString)
