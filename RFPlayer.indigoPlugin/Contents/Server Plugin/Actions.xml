@@ -15,7 +15,7 @@
 		</ConfigUI>
 	</Action>
 	<Action id="sendRTSMyCommand">
-		<Name>Send RTS My Command</Name>
+		<Name>Send RTS My/Stop Command</Name>
 		<CallbackMethod>sendRTSMyCommand</CallbackMethod>
 		<ConfigUI>
             <Field id="device" type="menu">

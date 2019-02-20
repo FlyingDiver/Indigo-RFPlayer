@@ -48,7 +48,6 @@ class Oregon(object):
         if subType not in ['0x1A89', '0x2A19', '0xDA78']: 
         
             device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
-            device.name = devAddress + " Thermometer"
             device.subModel = "Thermometer"
             device.replaceOnServer()
 
@@ -63,7 +62,6 @@ class Oregon(object):
         elif subType == '0x1A89':        # Wind Sensor
         
             device.updateStateImageOnServer(indigo.kStateImageSel.WindSpeedSensor)
-            device.name = devAddress + " Wind Speed"
             device.subModel = "Wind Speed"
             device.replaceOnServer()
 
@@ -78,7 +76,6 @@ class Oregon(object):
         elif subType == '0x2A19':        # Rain Sensor
         
             device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensor)
-            device.name = devAddress + " Rain Sensor"
             device.subModel = "Rain Sensor"
             device.replaceOnServer()
 
@@ -93,7 +90,6 @@ class Oregon(object):
         elif subType == '0xDA78':        # UV Sensor
         
             device.updateStateImageOnServer(indigo.kStateImageSel.LightSensor)
-            device.name = devAddress + " UV Sensor"
             device.subModel = "UV Sensor"
             device.replaceOnServer()
 
@@ -117,7 +113,7 @@ class Oregon(object):
 
             newdev = indigo.device.create(indigo.kProtocol.Plugin, 
                                             address=devAddress,
-                                            name=devAddress + " Hygrometer",
+                                            name=device.name + " Hygrometer",
                                             deviceTypeId="discoveredDevice", 
                                             groupWithDevice=device.id,
                                             props={ 'valueType': 'hygrometry',
@@ -145,7 +141,7 @@ class Oregon(object):
 
             newdev = indigo.device.create(indigo.kProtocol.Plugin, 
                                             address=devAddress,
-                                            name=devAddress + " Barometer",
+                                            name=device.name + " Barometer",
                                             deviceTypeId="discoveredDevice", 
                                             groupWithDevice=device.id,
                                             props={ 'valueType': 'pressure',
@@ -173,7 +169,7 @@ class Oregon(object):
 
             newdev = indigo.device.create(indigo.kProtocol.Plugin, 
                                             address=devAddress,
-                                            name=devAddress + " Wind Direction",
+                                            name=device.name + " Wind Direction",
                                             deviceTypeId="discoveredDevice", 
                                             groupWithDevice=device.id,
                                             props={ 'valueType': 'direction',

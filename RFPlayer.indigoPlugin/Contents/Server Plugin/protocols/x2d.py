@@ -43,9 +43,6 @@ class X2D(object):
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
         
-        device.name = address
-        device.replaceOnServer()
-
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)

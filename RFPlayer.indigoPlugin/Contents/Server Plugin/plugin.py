@@ -361,7 +361,7 @@ class Plugin(indigo.PluginBase):
         except Exception, e:
             self.logger.exception(u"sendCommandAction error: %s" % str(e))
 
-    def sendRTSMyCommand(self, pluginAction, sensorDevice, callerWaitingForResult):
+    def sendRTSMyCommand(self, pluginAction, callerWaitingForResult):
 
         sensorDevice = pluginAction.props["device"]
         sensor = self.sensorDevices[sensorDevice]

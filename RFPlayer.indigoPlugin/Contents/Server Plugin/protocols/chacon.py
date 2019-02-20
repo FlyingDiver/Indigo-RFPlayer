@@ -42,9 +42,6 @@ class Chacon(object):
         devices = knownDevices[devAddress]['devices']
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
-        
-        device.name = address
-        device.replaceOnServer()
 
         newProps = device.pluginProps
         newProps["configDone"] = True

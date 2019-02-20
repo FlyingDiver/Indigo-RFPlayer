@@ -15,7 +15,7 @@ class Parrot(object):
         self.device = device
         
         if device.address not in knownDevices:
-            self.logger.info("New Parrot Device %s" % (device.address))
+            self.logger.info("New Parrot Device {}".format(device.address))
             knownDevices[device.address] = { 
                 "status": "Active", 
                 "devices" : indigo.List(),
@@ -28,11 +28,11 @@ class Parrot(object):
 
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting Parrot device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(u"{}: Starting Parrot device ({}) @ {}".format(device.name, subType, devAddress))
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        self.logger.threaddebug(u"{}: __init__ configDone = {}".format(device.name, str(configDone)))
         if configDone:
             return
 
@@ -41,14 +41,11 @@ class Parrot(object):
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
         
-        device.name = devAddress
-        device.replaceOnServer()
-
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured Parrot device '%s' (%s) @ %s" % (device.name, device.id, devAddress))
+        self.logger.info(u"Configured Parrot device '{}' ({}) @ {}".format(device.name, device.id, devAddress))
 
         # all done creating devices.  Use the cached data to set initial data
         

@@ -43,9 +43,6 @@ class Visonic(object):
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
         
-        device.name = devAddress
-        device.replaceOnServer()
-
         newProps = device.pluginProps
         newProps["configDone"] = True
         newProps["SupportsBatteryLevel"] = True
