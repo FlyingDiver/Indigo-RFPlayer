@@ -78,7 +78,12 @@
         <Name>Parrot Device</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+			<Field id="SupportsOnState" type="checkbox" defaultValue="true" hidden="true" />
+			<Field id="SupportsSensorValue" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
+			<Field id="AllowOnStateChange" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="textfield" hidden="true" />
+
             <Field id="targetDevice" type="menu">
                 <Label>Select RFPlayer Device:</Label>
                 <List class="self" filter="" method="pickPlayerDevice" dynamicReload="true"/>

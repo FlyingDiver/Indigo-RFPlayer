@@ -197,10 +197,23 @@ class Plugin(indigo.PluginBase):
             else:
                 device.updateStateOnServer(key='playerStatus', value='Error')
                 device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
-        else:
+
+        elif device.deviceTypeId == "discoveredDevice":
             address = device.pluginProps.get(u'address', "")
             protocol = self.knownDevices[address]['protocol']
             self.sensorDevices[address] = (self.protocolClasses[protocol])(device, self.knownDevices)
+
+        elif device.deviceTypeId == "parrotDevice":
+            address = device.pluginProps.get(u'address', "")
+            self.sensorDevices[address] = Parrot(device, self.knownDevices)
+
+        elif device.deviceTypeId == "x10Device":
+            address = device.pluginProps.get(u'address', "")
+            self.sensorDevices[address] = X10(device, self.knownDevices)
+
+        else:
+            self.logger.warning(u"{}: Invalid device type: %d".format(device.name, device.deviceTypeId))
+        
         
         self.logger.debug(u"%s: deviceStartComm complete, sensorDevices[] =" % (device.name))
         for key, sensor in self.sensorDevices.iteritems():
@@ -233,7 +246,6 @@ class Plugin(indigo.PluginBase):
                 self.knownDevices.setitem_in_item(device.address, 'devices', devices)
                 self.knownDevices.setitem_in_item(device.address, 'status', "Available")
                 self.logger.debug(u"deviceDeleted: %s (%s)" % (device.name, device.id))
-                self.logger.debug(u"Known device list:\n" + str(self.knownDevices))
             except Exception, e:
                 self.logger.error(u"deviceDeleted error, {}: {}".format(device.name, str(e)))
 
