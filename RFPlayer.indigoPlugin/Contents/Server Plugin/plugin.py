@@ -213,8 +213,8 @@ class Plugin(indigo.PluginBase):
 
         else:
             self.logger.warning(u"{}: Invalid device type: %d".format(device.name, device.deviceTypeId))
-        
-        
+
+     
         self.logger.debug(u"%s: deviceStartComm complete, sensorDevices[] =" % (device.name))
         for key, sensor in self.sensorDevices.iteritems():
             self.logger.debug(u"\tkey = %s, sensor.name = %s, sensor.id = %d" % (key, sensor.device.name, sensor.device.id))
@@ -346,8 +346,31 @@ class Plugin(indigo.PluginBase):
                 
         else:
             self.logger.warning(u"Unimplemented command in actionControlSensor: '{}' -> {}" % (dev.name, action.sensorAction))
+         
+    def actionControlDevice(self, action, dev):
+        sensor = self.sensorDevices[dev.address]
+        player = self.players[sensor.player.id]
         
+        self.logger.debug(u"actionControlDevice: sensor = {}, player = {}, action = {}".format(sensor, player, action))
+        
+        if action.deviceAction == indigo.kDeviceAction.TurnOn:
+            sendSuccess = sensor.turnOn(player)
+            if sendSuccess:
+                dev.updateStateOnServer("onOffState", True)
+            else:
+                self.logger.error(u"send \"%s\" %s failed" % (dev.name, "On"))
 
+        elif action.deviceAction == indigo.kDeviceAction.TurnOff:
+            sendSuccess = sensor.turnOff(player)
+            if sendSuccess:
+                dev.updateStateOnServer("onOffState", False)
+            else:
+                self.logger.error(u"send \"%s\" %s failed" % (dev.name, "Off"))
+                
+        else:
+            self.logger.warning(u"Unimplemented command in actionControlDevice: '{}' -> {}" % (dev.name, action.deviceAction))
+ 
+ 
     ########################################
     # Plugin Actions object callbacks
     ########################################
