@@ -10,10 +10,10 @@ class Owl(object):
     def frameCheck(cls, playerDevice, frameData, knownDevices):
         devAddress = "OWL-" + frameData['infos']['id']
         if devAddress not in knownDevices:                                        
-            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            indigo.server.log(f"New device added to Known Device list: {devAddress}")
             knownDevices[devAddress] = { 
                 "status": "Available", 
-                "devices" : indigo.List(),
+                "devices": indigo.List(),
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['id'],
                 "subType": 'None',
@@ -30,11 +30,11 @@ class Owl(object):
         self.device = device
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting Owl device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(f"{device.name}: Starting Owl device ({subType}) @ {devAddress}")
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        self.logger.threaddebug(f"{device.name}: __init__ configDone = {str(configDone)}")
         if configDone:
             return
 
@@ -47,18 +47,15 @@ class Owl(object):
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured Owl device '%s' (%s) @ %s" % (device.name, device.id, address))
+        self.logger.info(f"Configured Owl device '{device.name}' ({device.id}) @ {address}")
 
         # all done creating devices.  Use the cached data to set initial data
         
         frameData = knownDevices[devAddress].get('frameData', None)
-        if (frameData):
+        if frameData:
             self.handler(frameData, knownDevices)
-        
 
     def handler(self, frameData, knownDevices):
 
         devAddress = "OWL-" + frameData['infos']['id']
-
-        self.logger.threaddebug(u"Owl frame received: %s" % (devAddress))
-
+        self.logger.threaddebug(f"Owl frame received: {devAddress}")

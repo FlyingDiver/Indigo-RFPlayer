@@ -4,6 +4,7 @@
 import logging
 import indigo
 
+
 class X10(object):
 
     @classmethod
@@ -14,26 +15,26 @@ class X10(object):
         self.logger = logging.getLogger("Plugin.X10")
         self.device = device
         deviceType = device.pluginProps['deviceType']
-        
+
         if device.address not in knownDevices:
-            self.logger.info("New X10 Device %s" % (device.address))
-            knownDevices[device.address] = { 
-                "status": "Active", 
-                "devices" : indigo.List(),
-                "protocol": "1", 
+            self.logger.info(f"New X10 Device {device.address}")
+            knownDevices[device.address] = {
+                "status": "Active",
+                "devices": indigo.List(),
+                "protocol": "1",
                 "subType": deviceType,
                 "description": device.address,
                 "playerId": int(device.pluginProps["targetDevice"]),
                 "frameData": None
-          }
+            }
 
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting X10 device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(f"{device.name}: Starting X10 device ({subType}) @ {devAddress}")
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
-        
+
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        self.logger.threaddebug(f"{device.name}: __init__ configDone = {str(configDone)}")
         if configDone:
             return
 
@@ -41,62 +42,60 @@ class X10(object):
         devices = knownDevices[devAddress]['devices']
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
-        
+
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured X10 Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
+        self.logger.info(f"Configured X10 Sensor '{device.name}' ({device.id}) @ {devAddress}")
 
         # all done creating devices.  Use the cached data to set initial data
-        
+
         frameData = knownDevices[devAddress].get('frameData', None)
-        if (frameData):
+        if frameData:
             self.handler(frameData, knownDevices)
-        
 
     def handler(self, frameData, knownDevices):
 
         devAddress = "X10-" + frameData['infos']['idMeaning']
+        self.logger.threaddebug(f"X10 frame received: {devAddress}")
 
-        self.logger.threaddebug(u"X10 frame received: %s" % (devAddress))
-            
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             try:
                 sensor = indigo.devices[deviceId]
-            except:
-                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+            except KeyError:
+                self.logger.error(f"Device configuration error - invalid deviceId ({devAddress}) in device list: {str(knownDevices[devAddress])}")
                 continue
-                                
+
             sensorState = frameData['infos']['subType']
-            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
-            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))       
+            self.logger.threaddebug(f"{sensor.name}: Updating sensor {devAddress} to {sensorState}")
+            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
 
     def requestStatus(self, rfPlayer):
-        self.logger.debug("Request Status for %s" % (self.device.address))        
+        self.logger.debug(f"Request Status for {self.device.address}")
         return True
 
     def turnOn(self, rfPlayer):
-        
-        cmdString = "ON %s X10" % (self.device.address[4:])        
+
+        cmdString = f"ON {self.device.address[4:]} X10"
         try:
-            self.logger.debug(u"X10 turnOn command '" + cmdString + "' to " + self.player.name)
+            self.logger.debug(f"X10 turnOn command '{cmdString}' to {self.player.name}")
             rfPlayer.sendRawCommand(cmdString)
-        except Exception, e:
-            self.logger.exception(u"X10 turnOn command error: %s" % str(e))
+        except Exception as e:
+            self.logger.exception(f"X10 turnOn command error: {str(e)}")
             return False
         else:
             return True
 
     def turnOff(self, rfPlayer):
-        
-        cmdString = "OFF %s X10" % (self.device.address[4:])        
+
+        cmdString = "OFF %s X10" % (self.device.address[4:])
         try:
-            self.logger.debug(u"X10 turnOff command '" + cmdString + "' to " + self.player.name)
+            self.logger.debug(f"X10 turnOff command '{cmdString}' to {self.player.name}")
             rfPlayer.sendRawCommand(cmdString)
-        except Exception, e:
-            self.logger.exception(u"X10 turnOff command error: %s" % str(e))
+        except Exception as e:
+            self.logger.exception(f"X10 turnOff command error: {str(e)}")
             return False
         else:
             return True

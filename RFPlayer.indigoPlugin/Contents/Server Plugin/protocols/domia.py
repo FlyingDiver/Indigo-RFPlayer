@@ -9,12 +9,12 @@ class Domia(object):
     @classmethod
     def frameCheck(cls, playerDevice, frameData, knownDevices):
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
-        if devAddress not in knownDevices:                                        
-            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
-            knownDevices[devAddress] = { 
-                "status": "Available", 
-                "devices" : indigo.List(),
-                "protocol": frameData['header']['protocol'], 
+        if devAddress not in knownDevices:
+            indigo.server.log(f"New device added to Known Device list: {devAddress}")
+            knownDevices[devAddress] = {
+                "status": "Available",
+                "devices": indigo.List(),
+                "protocol": frameData['header']['protocol'],
                 "description": frameData['infos']['idMeaning'],
                 "subType": frameData['infos']['subType'],
                 "playerId": playerDevice.id,
@@ -22,7 +22,6 @@ class Domia(object):
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
-
         return devAddress
 
     def __init__(self, device, knownDevices):
@@ -30,11 +29,11 @@ class Domia(object):
         self.device = device
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting Domia device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(f"{device.name}: Starting Domia device ({subType}) @ {devAddress}")
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
-        
+
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        self.logger.threaddebug(f"{device.name}: __init__ configDone = {str(configDone)}")
         if configDone:
             return
 
@@ -42,37 +41,35 @@ class Domia(object):
         devices = knownDevices[devAddress]['devices']
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
-                
+
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured configDomia Sensor '%s' (%s) @ %s" % (device.name, device.id, address))
-       
+        self.logger.info(f"Configured Domia Sensor '{device.name}' ({device.id}) @ {address}")
+
         # all done creating devices.  Use the cached data to set initial data
-        
+
         frameData = knownDevices[devAddress].get('frameData', None)
-        if (frameData):
+        if frameData:
             self.handler(frameData, knownDevices)
-        
 
     def handler(self, frameData, knownDevices):
 
         devAddress = "DOMIA-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"Domia frame received: %s" % (devAddress))
-            
+        self.logger.threaddebug(f"Domia frame received: {devAddress}")
+
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             try:
                 sensor = indigo.devices[deviceId]
-            except:
-                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+            except KeyError:
+                self.logger.error(f"Device configuration error - invalid deviceId ({devAddress}) in device list: {str(knownDevices[devAddress])}")
                 continue
-                                
-            sensor = self.sensorDevices[deviceId]       
+
+            sensor = self.sensorDevices[deviceId]
             sensorState = frameData['infos']['qualifier']
-            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
+            self.logger.threaddebug(f"{sensor.name}: Updating sensor {devAddress} to {sensorState}")
             sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
             sensor.updateStateOnServer('sensorValue', sensorState, uiValue=sensorState)
-

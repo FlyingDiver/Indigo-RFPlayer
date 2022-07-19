@@ -10,10 +10,10 @@ class Visonic(object):
     def frameCheck(cls, playerDevice, frameData, knownDevices):
         devAddress = "VISONIC-" + frameData['infos']['id']
         if devAddress not in knownDevices:                                        
-            indigo.server.log("New device added to Known Device list: %s" % (devAddress))
+            indigo.server.log(f"New device added to Known Device list: {devAddress}")
             knownDevices[devAddress] = { 
                 "status": "Available", 
-                "devices" : indigo.List(),
+                "devices": indigo.List(),
                 "protocol": frameData['header']['protocol'], 
                 "description": frameData['infos']['subTypeMeaning'],
                 "subType": frameData['infos']['subType'],
@@ -22,7 +22,6 @@ class Visonic(object):
             }
         else:
             knownDevices[devAddress]["playerId"] = playerDevice.id
-
         return devAddress
 
     def __init__(self, device, knownDevices):
@@ -30,11 +29,11 @@ class Visonic(object):
         self.device = device
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"%s: Starting Visonic device (%s) @ %s" % (device.name, subType, devAddress))
+        self.logger.debug(f"{device.name}: Starting Visonic device ({subType}) @ {devAddress}")
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
         
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"%s: __init__ configDone = %s" % (device.name, str(configDone)))
+        self.logger.threaddebug(f"{device.name}: __init__ configDone = {str(configDone)}")
         if configDone:
             return
 
@@ -48,31 +47,29 @@ class Visonic(object):
         newProps["SupportsBatteryLevel"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured Visonic Sensor '%s' (%s) @ %s" % (device.name, device.id, devAddress))
+        self.logger.info(f"Configured Visonic Sensor '{device.name}' ({device.id}) @ {devAddress}")
        
         # all done creating devices.  Use the cached data to set initial data
         
         frameData = knownDevices[devAddress].get('frameData', None)
-        if (frameData):
+        if frameData:
             self.handler(frameData, knownDevices)
-        
 
     def handler(self, frameData, knownDevices):
 
         devAddress = "VISONIC-" + frameData['infos']['id']
-
-        self.logger.threaddebug(u"Visonic frame received: %s" % (devAddress))
+        self.logger.threaddebug(f"Visonic frame received: {devAddress}")
             
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             try:
                 sensor = indigo.devices[deviceId]
-            except:
-                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+            except KeyError:
+                self.logger.error(f"Device configuration error - invalid deviceId ({devAddress}) in device list: {str(knownDevices[devAddress])}")
                 continue
 
             sensorState = frameData['infos']['qualifier']
-            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))
+            self.logger.threaddebug(f"{sensor.name}: Updating sensor {devAddress} to {sensorState}")
             if int(sensorState) & 4:
                 sensor.updateStateOnServer('batteryLevel', '10', uiValue='10%')
             else:

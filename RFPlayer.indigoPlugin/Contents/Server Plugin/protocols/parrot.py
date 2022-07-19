@@ -4,6 +4,7 @@
 import logging
 import indigo
 
+
 class Parrot(object):
 
     @classmethod
@@ -13,13 +14,13 @@ class Parrot(object):
     def __init__(self, device, knownDevices):
         self.logger = logging.getLogger("Plugin.Parrot")
         self.device = device
-        
+
         if device.address not in knownDevices:
-            self.logger.info("New Parrot Device {}".format(device.address))
-            knownDevices[device.address] = { 
-                "status": "Active", 
-                "devices" : indigo.List(),
-                "protocol": "11", 
+            self.logger.info(f"New Parrot Device {device.address}")
+            knownDevices[device.address] = {
+                "status": "Active",
+                "devices": indigo.List(),
+                "protocol": "11",
                 "description": device.address,
                 "subType": 'None',
                 "playerId": int(device.pluginProps["targetDevice"]),
@@ -28,11 +29,11 @@ class Parrot(object):
 
         devAddress = device.pluginProps['address']
         subType = knownDevices[devAddress]['subType']
-        self.logger.debug(u"{}: Starting Parrot device ({}) @ {}".format(device.name, subType, devAddress))
+        self.logger.debug(f"{device.name}: Starting Parrot device ({subType}) @ {devAddress}")
         self.player = indigo.devices[knownDevices[devAddress]['playerId']]
-        
+
         configDone = device.pluginProps.get('configDone', False)
-        self.logger.threaddebug(u"{}: __init__ configDone = {}".format(device.name, str(configDone)))
+        self.logger.threaddebug(f"{device.name}: __init__ configDone = {str(configDone)}")
         if configDone:
             return
 
@@ -40,62 +41,62 @@ class Parrot(object):
         devices = knownDevices[devAddress]['devices']
         devices.append(device.id)
         knownDevices.setitem_in_item(devAddress, 'devices', devices)
-        
+
         newProps = device.pluginProps
         newProps["configDone"] = True
         device.replacePluginPropsOnServer(newProps)
 
-        self.logger.info(u"Configured Parrot device '{}' ({}) @ {}".format(device.name, device.id, devAddress))
+        self.logger.info(f"Configured Parrot device '{device.name}' ({device.id}) @ {devAddress}")
 
         # all done creating devices.  Use the cached data to set initial data
-        
+
         frameData = knownDevices[devAddress].get('frameData', None)
-        if (frameData):
+        if frameData:
             self.handler(frameData, knownDevices)
-        
+
     def handler(self, frameData, knownDevices):
 
         devAddress = "PARROT-" + frameData['infos']['idMeaning']
 
-        self.logger.threaddebug(u"Parrot frame received: %s" % (devAddress))
+        self.logger.threaddebug(f"Parrot frame received: {devAddress}")
 
         deviceList = knownDevices[devAddress]['devices']
         for deviceId in deviceList:
             try:
                 sensor = indigo.devices[deviceId]
-            except:
-                self.logger.error(u"Device configuration error - invalid deviceId (%s) in device list: %s" % (devAddress, str(knownDevices[devAddress])))
+            except KeyError:
+                self.logger.error(
+                    f"Device configuration error - invalid deviceId ({devAddress}) in device list: {str(knownDevices[devAddress])}")
                 continue
-                                
-            sensorState = frameData['infos']['subType']
-            self.logger.threaddebug(u"%s: Updating sensor %s to %s" % (sensor.name, devAddress, sensorState))                        
-            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))       
 
-        
+            sensorState = frameData['infos']['subType']
+            self.logger.threaddebug(f"{sensor.name}: Updating sensor {devAddress} to {sensorState}")
+            sensor.updateStateOnServer('onOffState', bool(int(sensorState)))
+
     def requestStatus(self, rfPlayer):
-        self.logger.debug("Request Status for %s" % (self.device.address))        
+        self.logger.debug(f"Request Status for {self.device.address}")
         return True
 
     def turnOn(self, rfPlayer):
-        
-        cmdString = "ON %s PARROT" % (self.device.address[7:])        
+
+        cmdString = f"ON {self.device.address[7:]} PARROT"
         try:
-            self.logger.debug(u"Parrot turnOn command '" + cmdString + "' to " + self.player.name)
+            self.logger.debug(f"Parrot turnOn command '{cmdString}' to {self.player.name}")
             rfPlayer.sendRawCommand(cmdString)
-        except Exception, e:
-            self.logger.exception(u"Parrot turnOn command error: %s" % str(e))
+        except Exception as e:
+            self.logger.exception(f"Parrot turnOn command error: {str(e)}")
             return False
         else:
             return True
 
     def turnOff(self, rfPlayer):
-        
-        cmdString = "OFF %s PARROT" % (self.device.address[7:])        
+
+        cmdString = f"OFF {self.device.address[7:]} PARROT"
         try:
-            self.logger.debug(u"Parrot turnOff command '" + cmdString + "' to " + self.player.name)
+            self.logger.debug(f"Parrot turnOff command '{cmdString}' to {self.player.name}")
             rfPlayer.sendRawCommand(cmdString)
-        except Exception, e:
-            self.logger.exception(u"Parrot turnOff command error: %s" % str(e))
+        except Exception as e:
+            self.logger.exception(f"Parrot turnOff command error: {e}")
             return False
         else:
             return True

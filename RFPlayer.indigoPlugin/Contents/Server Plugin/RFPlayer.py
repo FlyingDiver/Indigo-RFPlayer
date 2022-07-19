@@ -26,14 +26,14 @@ class RFPlayer(object):
 
     def start(self, serialPort, baudRate):
 
-        self.logger.debug(u"RFPlayer start called, port = %s, baud = %d" % (serialPort, baudRate))
+        self.logger.debug(f"RFPlayer start called, port = {serialPort}, baud = {baudRate:d}")
 
         if len(serialPort) == 0:
-            self.logger.debug(u"RFPlayer start: no serial port specified")
+            self.logger.debug("RFPlayer start: no serial port specified")
             return False
         
         if baudRate == 0:
-            self.logger.debug(u"RFPlayer start: invalid baud rate")
+            self.logger.debug("RFPlayer start: invalid baud rate")
             return False
         
         self.sequence = 0
@@ -42,19 +42,17 @@ class RFPlayer(object):
         if self.port is None:
             return False
         else:
-            self.logger.info(u"Opened serial port %s at %d baud" % (serialPort, baudRate)) 
+            self.logger.info(f"Opened serial port {serialPort} at {baudRate:d} baud")
             self.connected = True
                  
         self.sendRawCommand("HELLO")
         self.sendRawCommand("FORMAT JSON")
         self.sendRawCommand("STATUS SYSTEM JSON")
         self.sendRawCommand("STATUS RADIO JSON")
-        
         return True
-            
 
     def stop(self):
-        self.logger.debug(u"RFPlayer stop called")
+        self.logger.debug("RFPlayer stop called")
         if self.connected:
             self.port.close()
         self.port = None  
@@ -73,28 +71,27 @@ class RFPlayer(object):
                 while not data.endswith('\r'):
                     data += self.port.read().decode('ascii')
                 reply = self.handle_data(data.rstrip())
-        except Exception, e:
-            self.logger.error(u"RFPlayer Serial Read error: %s" % str(e))
+        except Exception as e:
+            self.logger.error(f"RFPlayer Serial Read error: {e}")
             self.connected = False
         
         # now send any queued up messages
         
         if not self.queue.empty():
             command = self.queue.get(False)
-            self.logger.threaddebug(u"sending: " + command)
+            self.logger.threaddebug(f"sending: {command}")
             try:
-                self.port.write(command)
-            except Exception, e:
-                self.logger.exception(u"Serial Write error: %s" % str(e))
+                self.port.write(command.encode('ascii'))
+            except Exception as e:
+                self.logger.exception(f"Serial Write error: {e}")
                 self.connected = False
-                
             
         return reply
    
     def handle_data(self, data):
         
         if data[0:3] != "ZIA":
-            self.logger.debug(u"Invalid frame prefix: '%s'" % data[0:3])
+            self.logger.debug(f"Invalid frame prefix: '{data[0:3]}'")
             return
 
         if data[0:12] == "ZIA--Welcome":    # Welcome reply, always text string
@@ -107,24 +104,23 @@ class RFPlayer(object):
         
         try:                                # everything else should be JSON
             reply = json.loads(data[5:])
+        except Exception as e:
+            self.logger.debug(f"json decode failure:{e}\n{data}")
+            return None
+        else:
             return reply
-        except:
-            self.logger.debug(u"json decode failure:\n" + str(data))        
-        
-        return None
-        
+
     def sendCommand(self, commandString):
     
-        self.logger.threaddebug(u"sendCommand: " + commandString)
+        self.logger.threaddebug(f"sendCommand: {commandString}")
         self.sequence += 1 
-        command = "ZIA++%04d %s JSON\r" % (self.sequence, commandString)
+        command = f"ZIA++{self.sequence:04d} {commandString} JSON\r"
         self.queue.put(command)
-        
-    
+
     def sendRawCommand(self, commandString):
     
-        self.logger.threaddebug(u"sendRawCommand: " + commandString)
-        command = "ZIA++%s\r" % (commandString)
+        self.logger.threaddebug(f"sendRawCommand: {commandString}")
+        command = f"ZIA++{commandString}\r"
         self.queue.put(command)
         
         
