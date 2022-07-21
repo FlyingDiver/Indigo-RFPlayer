@@ -7,7 +7,7 @@ import json
 import logging
 import serial
 
-from Queue import Queue
+from queue import Queue
 
 ################################################################################
 class RFPlayer(object):
