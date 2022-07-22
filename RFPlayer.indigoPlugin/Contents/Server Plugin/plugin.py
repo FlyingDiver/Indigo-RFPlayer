@@ -159,7 +159,7 @@ class Plugin(indigo.PluginBase):
     # Device Management Methods
     ########################################
 
-    def didDeviceCommPropertyChange(self, origDev, newDev):  # noqa: C901
+    def didDeviceCommPropertyChange(self, origDev, newDev):  # noqa
         if newDev.deviceTypeId == "RFPlayer":
             if origDev.pluginProps.get('serialPort', None) != newDev.pluginProps.get('serialPort', None):
                 return True
@@ -180,7 +180,7 @@ class Plugin(indigo.PluginBase):
         else:
             self.logger.warning(f"{device.name}: Invalid device version: {instanceVers:d}")
 
-        self.logger.threaddebug(f"{device.name}: Starting Device: {unicode(device)}")
+        self.logger.threaddebug(f"{device.name}: Starting Device: {device}")
 
         if device.deviceTypeId == "RFPlayer":
             serialPort = device.pluginProps.get('serialPort', "")
@@ -211,7 +211,7 @@ class Plugin(indigo.PluginBase):
             self.logger.warning(f"{device.name}: Invalid  device type: {device.deviceTypeId}")
 
         self.logger.debug(f"{device.name}: deviceStartComm complete, sensorDevices[] =")
-        for key, sensor in self.sensorDevices.iteritems():
+        for key, sensor in self.sensorDevices.items():
             self.logger.debug(f"\tkey = {key}, sensor.name = {sensor.device.name}, sensor.id = {sensor.device.id:d}")
 
     def deviceStopComm(self, device):
@@ -244,7 +244,7 @@ class Plugin(indigo.PluginBase):
 
     ########################################
 
-    def validateDeviceConfigUi(self, valuesDict, typeId, devId):  # noqa: C901
+    def validateDeviceConfigUi(self, valuesDict, typeId, devId):  # noqa
         if typeId == "x10Device":
             valuesDict['address'] = f"X10-{valuesDict['houseCode']}{valuesDict['unitCode']}"
         elif typeId == "parrotDevice":
@@ -258,7 +258,7 @@ class Plugin(indigo.PluginBase):
 
     def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
         retList = []
-        for address, data in sorted(self.knownDevices.iteritems()):
+        for address, data in sorted(self.knownDevices.items()):
             if data['status'] == 'Available':
                 retList.append((address, f"{address}: {data['description']}"))
 
@@ -269,7 +269,7 @@ class Plugin(indigo.PluginBase):
 
     def activeDeviceList(self, filter="", valuesDict=None, typeId="discoveredDevice", targetId=0):
         retList = []
-        for address, data in sorted(self.knownDevices.iteritems()):
+        for address, data in sorted(self.knownDevices.items()):
             if data['status'] == 'Active' and (filter in address):
                 retList.append((address, f"{address}: {data['description']}"))
 
@@ -291,7 +291,7 @@ class Plugin(indigo.PluginBase):
     def triggerCheck(self, device):
         self.logger.threaddebug(f"Checking Triggers for Device {device.name} ({device.id:d})")
 
-        for triggerId, trigger in sorted(self.triggers.iteritems()):
+        for triggerId, trigger in sorted(self.triggers.items()):
             self.logger.threaddebug(f"\tChecking Trigger {trigger.name} ({trigger.id:d}), {trigger.pluginTypeId}")
 
             if trigger.pluginProps["sensorID"] != str(device.id):
@@ -366,7 +366,7 @@ class Plugin(indigo.PluginBase):
     # Plugin Actions object callbacks
     ########################################
 
-    def validateActionConfigUi(self, valuesDict, typeId, devId):
+    def validateActionConfigUi(self, valuesDict, typeId, devId):    # noqa
         errorsDict = indigo.Dict()
 
         if len(errorsDict) > 0:
@@ -449,7 +449,7 @@ class Plugin(indigo.PluginBase):
 
     def purgeKnownDevices(self):
         self.logger.info("Purging Known device list...")
-        for address, data in self.knownDevices.iteritems():
+        for address, data in self.knownDevices.items():
             if data['status'] == 'Available':
                 self.logger.info(f"\t{address}")
                 del self.knownDevices[address]
